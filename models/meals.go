@@ -1,17 +1,23 @@
 package models
 
-// import {
-// 	"reflect"
-// }
+import (
+	"sync"
+	"time"
+)
 
 type Meal struct {
-	id            int
-	name          string
-	price         float32
-	isPackingNeed bool
+	Id          int
+	Name        string
+	Price       float32
+	popularity  int
+	lastOrdered time.Time
+	lock        sync.Mutex
 }
 
-//
-func (Meal) Get(attr string) interface{} {
-	return nil
+// Increment one by one synchronously
+func (meal Meal) SyncAddition() {
+	meal.lock.Lock()
+	meal.popularity += 1
+	meal.lastOrdered = time.Now()
+	meal.lock.Unlock()
 }
