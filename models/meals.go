@@ -15,7 +15,7 @@ type Meal struct {
 }
 
 // Increment one by one synchronously
-func (meal Meal) SyncAddition() {
+func (meal *Meal) SyncAddition() {
 	meal.lock.Lock()
 	meal.popularity += 1
 	meal.lastOrdered = time.Now()
