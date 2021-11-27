@@ -1,28 +1,17 @@
 package models
 
 import (
-	"fmt"
+	"log"
 	"math/rand"
 	"sync"
 	"testing"
 )
 
-var meals = []*Meal{
-	{
-		Id:    0,
-		Name:  "grilled goose",
-		Price: 10.3,
-	},
-	{
-		Id:    1,
-		Name:  "fried chicken",
-		Price: 11.3,
-	},
-}
+var mealFmt = PaintStringFunc("meal")
 
 func Test_MealSerializable(t *testing.T) {
 	for _, meal := range meals {
-		fmt.Println(meal)
+		log.Println(mealFmt(meal))
 	}
 }
 
@@ -42,11 +31,7 @@ func Test_Order(t *testing.T) {
 	go orderMeal(totalCase / 2)
 	wg.Wait()
 
-	for _, meal := range meals {
-		fmt.Println(meal)
-	}
-
-	if meals[0].popularity+meals[1].popularity != totalCase {
+	if meals[0].Popularity+meals[1].Popularity != totalCase {
 		t.Error("Unsynced error ")
 	}
 }
