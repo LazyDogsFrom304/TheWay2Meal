@@ -7,19 +7,19 @@ import (
 )
 
 type Meal struct {
-	Id          int
-	Name        string
-	Price       float32
-	popularity  int
-	lastOrdered time.Time
+	Id          int       `json:"id" structs:"id"`
+	Name        string    `json:"name" structs:"name"`
+	Price       float32   `json:"price" structs:"price"`
+	Popularity  int       `json:"popularity" structs:"popularity"`
+	LastOrdered time.Time `json:"lastordered" structs:"lastordered"`
 	lock        sync.Mutex
 }
 
 // Increment one by one synchronously
 func (meal *Meal) SyncAddition() {
 	meal.lock.Lock()
-	meal.popularity += 1
-	meal.lastOrdered = time.Now()
+	meal.Popularity += 1
+	meal.LastOrdered = time.Now()
 	meal.lock.Unlock()
 }
 
@@ -30,6 +30,6 @@ func (meal *Meal) String() string {
 		meal.Id,
 		meal.Name,
 		meal.Price,
-		meal.popularity,
-		meal.lastOrdered.Format("2000-01-01 01:01:01"))
+		meal.Popularity,
+		meal.LastOrdered.Format("2000-01-01 01:01:01"))
 }
