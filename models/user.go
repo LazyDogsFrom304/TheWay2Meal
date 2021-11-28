@@ -24,6 +24,15 @@ func (user *User) Accept(meal *Meal) {
 	user.UpdateBalance(-meal.Price)
 }
 
+func (user *User) Detach() *User {
+	newOne := &User{
+		UserID:  user.UserID,
+		Name:    user.Name,
+		Balance: user.Balance,
+	}
+	return newOne
+}
+
 func (user *User) String() string {
 	return fmt.Sprintf("User Id %d is %s, whose bill is at %f yuan.",
 		user.UserID,

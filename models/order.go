@@ -27,8 +27,18 @@ func (order *Order) String() string {
 		order.AcceptorName)
 }
 
-func (order *Order) Detach() *Meal{
-	newOne:=
+func (order *Order) Detach() *Order {
+	newOne := &Order{
+		OrderID:         order.OrderID,
+		OrderTime:       order.OrderTime,
+		RequesterName:   order.RequesterName,
+		AcceptorName:    order.AcceptorName,
+		OrderedMealName: order.OrderedMealName,
+		RequesterId:     order.RequesterId,
+		AcceptorId:      order.AcceptorId,
+		OrderedMealId:   order.OrderedMealId,
+	}
+	return newOne
 }
 
 const (

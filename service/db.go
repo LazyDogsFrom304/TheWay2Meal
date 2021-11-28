@@ -9,7 +9,7 @@ import (
 	"theway2meal/models"
 )
 
-type Table map[int]interface{}
+type Table map[int]models.Detachable
 type DataBase map[string]Table
 
 // Global instance of database
@@ -27,7 +27,7 @@ func GetDefaultDB() DataBase {
 
 // simpleSQL formats like:
 // `meals:id`
-// 
+// return obj implements Detachable
 func (db DataBase) Get(simpleSQL string) (models.Detachable, bool) {
 	tableName, id, ok := analysisSQL(simpleSQL)
 	if !ok {
@@ -47,8 +47,18 @@ func (db DataBase) Get(simpleSQL string) (models.Detachable, bool) {
 }
 
 // simpleSQL formats like:
-// `user:`
-func （db DataBase) Set(simpleSQL string) (boll)
+// `"user:id", obj`
+func (db DataBase) Set(simpleSQL string, obj models.Detachable) bool {
+	tableName, id, ok := analysisSQL(simpleSQL)
+	if !ok {
+		return ok
+	}
+	table, ok := db[tableName]
+	if !ok {
+		//
+		return nil, ok
+	}
+}
 
 func analysisSQL(simpleSQL string) (string, int, bool) {
 	keymap := strings.Split(simpleSQL, ":")
