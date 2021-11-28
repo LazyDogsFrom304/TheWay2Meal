@@ -15,6 +15,7 @@ func Test_MealSerializable(t *testing.T) {
 	}
 }
 
+// TODO: Mirgrate to service
 func Test_Order(t *testing.T) {
 	totalCase := 10000 //which should be enough
 	var wg sync.WaitGroup
@@ -22,7 +23,7 @@ func Test_Order(t *testing.T) {
 
 	orderMeal := func(dealNums int) {
 		for i := 0; i < dealNums; i++ {
-			meals[rand.Intn(len(meals))].SyncAddition()
+			meals[rand.Intn(len(meals))].Update()
 			wg.Done()
 		}
 	}

@@ -1,4 +1,4 @@
-module gin
+module theway2meal
 
 go 1.17
 

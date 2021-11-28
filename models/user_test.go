@@ -16,6 +16,7 @@ func Test_UserSerializable(t *testing.T) {
 	}
 }
 
+// TODO :Mirgrate
 func Test_Balance(t *testing.T) {
 	totalCost := 9000.0 //which should be enough
 	var wg sync.WaitGroup
@@ -23,9 +24,9 @@ func Test_Balance(t *testing.T) {
 
 	appendOrder := func(dealNums int) {
 		for i := 0; i < dealNums; i++ {
-			pay := rand.Float64() * 15
-			users[rand.Intn(len(users))].SyncAddBalance(pay)
-			users[rand.Intn(len(users))].SyncAddBalance(-pay)
+			meal := meals[rand.Intn(len(meals))]
+			users[rand.Intn(len(users))].Request(meal)
+			users[rand.Intn(len(users))].Accept(meal)
 			wg.Done()
 		}
 	}

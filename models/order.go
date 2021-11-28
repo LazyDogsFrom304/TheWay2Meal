@@ -27,6 +27,10 @@ func (order *Order) String() string {
 		order.AcceptorName)
 }
 
+func (order *Order) Detach() *Meal{
+	newOne:=
+}
+
 const (
 	OrderStatusOK = iota
 )
