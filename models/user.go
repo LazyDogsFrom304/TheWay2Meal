@@ -24,13 +24,8 @@ func (user *User) Accept(meal *Meal) {
 	user.UpdateBalance(-meal.Price)
 }
 
-func (user *User) Detach() *User {
-	newOne := &User{
-		UserID:  user.UserID,
-		Name:    user.Name,
-		Balance: user.Balance,
-	}
-	return newOne
+func (user *User) Detach() interface{} {
+	return *user
 }
 
 func (user *User) String() string {

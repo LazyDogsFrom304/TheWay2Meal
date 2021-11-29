@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-var meals = []*Meal{
+var Meals = []*Meal{
 	{
 		Id:          0,
 		Name:        "grilled goose",
@@ -20,7 +20,7 @@ var meals = []*Meal{
 	},
 }
 
-var users = []*User{
+var Users = []*User{
 	{
 		UserID:  0,
 		Name:    "gs",
@@ -38,36 +38,39 @@ var users = []*User{
 	},
 }
 
-var orders = []*Order{
+var Orders = []*Order{
 	{
 		OrderID:         0,
 		OrderTime:       time.Now(),
-		RequesterName:   users[0].Name,
-		AcceptorName:    users[1].Name,
-		OrderedMealName: meals[0].Name,
+		RequesterName:   Users[0].Name,
+		AcceptorName:    Users[1].Name,
+		OrderedMealName: Meals[0].Name,
 		RequesterId:     0,
 		AcceptorId:      1,
 		OrderedMealId:   0,
+		IsDone:          false,
 	},
 	{
 		OrderID:         1,
 		OrderTime:       time.Now(),
-		RequesterName:   users[1].Name,
-		AcceptorName:    users[2].Name,
-		OrderedMealName: meals[1].Name,
+		RequesterName:   Users[1].Name,
+		AcceptorName:    Users[2].Name,
+		OrderedMealName: Meals[1].Name,
 		RequesterId:     1,
 		AcceptorId:      2,
 		OrderedMealId:   1,
+		IsDone:          false,
 	},
 	{
 		OrderID:         2,
 		OrderTime:       time.Now(),
-		RequesterName:   users[0].Name,
-		AcceptorName:    users[2].Name,
-		OrderedMealName: meals[1].Name,
+		RequesterName:   Users[0].Name,
+		AcceptorName:    Users[2].Name,
+		OrderedMealName: Meals[1].Name,
 		RequesterId:     0,
 		AcceptorId:      2,
 		OrderedMealId:   1,
+		IsDone:          false,
 	},
 }
 

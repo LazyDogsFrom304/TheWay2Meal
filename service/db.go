@@ -6,18 +6,18 @@ import (
 	"log"
 	"strconv"
 	"strings"
-	"theway2meal/models"
 )
 
-type Table map[int]models.Detachable
+type Table map[int]interface{}
 type DataBase map[string]Table
 
 // Global instance of database
-var MealTable, OrderTable, UserTable = make(Table), make(Table), make(Table)
+var MealTable, OrderDoneTable, OrderPendingTable, UserTable = make(Table), make(Table), make(Table), make(Table)
 var singleInstanceDB = DataBase{
-	"meals":  MealTable,
-	"orders": OrderTable,
-	"users":  UserTable,
+	"meals":         MealTable,
+	"ordersDone":    OrderDoneTable,
+	"ordersPending": OrderPendingTable,
+	"users":         UserTable,
 }
 
 // Align with redis api
@@ -28,7 +28,7 @@ func GetDefaultDB() DataBase {
 // simpleSQL formats like:
 // `meals:id`
 // return obj implements Detachable
-func (db DataBase) Get(simpleSQL string) (models.Detachable, bool) {
+func (db DataBase) Get(simpleSQL string) (interface{}, bool) {
 	tableName, id, ok := analysisSQL(simpleSQL)
 	if !ok {
 		return nil, ok
@@ -39,7 +39,7 @@ func (db DataBase) Get(simpleSQL string) (models.Detachable, bool) {
 		return nil, ok
 	}
 	obj, ok := table[id]
-	if !ok {
+	if !ok && obj != nil {
 		log.Printf("index %d is not found\n", id)
 		return nil, ok
 	}
@@ -47,17 +47,34 @@ func (db DataBase) Get(simpleSQL string) (models.Detachable, bool) {
 }
 
 // simpleSQL formats like:
-// `"user:id", obj`
-func (db DataBase) Set(simpleSQL string, obj models.Detachable) bool {
+// `"users:id", obj`
+// pass by value
+func (db DataBase) Set(simpleSQL string, obj interface{}) bool {
 	tableName, id, ok := analysisSQL(simpleSQL)
 	if !ok {
 		return ok
 	}
-	table, ok := db[tableName]
+	db[tableName][id] = obj
+	return true
+}
+
+func (db DataBase) DeleteOrder(simpleSQL string) (interface{}, bool) {
+	tableName, id, ok := analysisSQL(simpleSQL)
 	if !ok {
-		//
 		return nil, ok
 	}
+	table, ok := db["ordersPending"]
+	if !ok {
+		log.Printf("tableName %s is not found\n", tableName)
+		return nil, ok
+	}
+	obj, ok := table[id]
+	if !ok && obj != nil {
+		log.Printf("index %d is not found\n", id)
+		return nil, ok
+	}
+	delete(table, id)
+	return obj, ok
 }
 
 func analysisSQL(simpleSQL string) (string, int, bool) {

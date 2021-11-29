@@ -10,7 +10,7 @@ import (
 var mealFmt = PaintStringFunc("meal")
 
 func Test_MealSerializable(t *testing.T) {
-	for _, meal := range meals {
+	for _, meal := range Meals {
 		log.Println(mealFmt(meal))
 	}
 }
@@ -23,7 +23,7 @@ func Test_Order(t *testing.T) {
 
 	orderMeal := func(dealNums int) {
 		for i := 0; i < dealNums; i++ {
-			meals[rand.Intn(len(meals))].Update()
+			Meals[rand.Intn(len(Meals))].Update()
 			wg.Done()
 		}
 	}
@@ -32,7 +32,7 @@ func Test_Order(t *testing.T) {
 	go orderMeal(totalCase / 2)
 	wg.Wait()
 
-	if meals[0].Popularity+meals[1].Popularity != totalCase {
+	if Meals[0].Popularity+Meals[1].Popularity != totalCase {
 		t.Error("Unsynced error ")
 	}
 }

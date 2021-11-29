@@ -19,15 +19,8 @@ func (meal *Meal) Update() {
 	meal.LastOrdered = time.Now()
 }
 
-func (meal *Meal) Detach() *Meal {
-	newOne := &Meal{
-		Id:          meal.Id,
-		Name:        meal.Name,
-		Price:       meal.Price,
-		Popularity:  meal.Popularity,
-		LastOrdered: meal.LastOrdered}
-
-	return newOne
+func (meal *Meal) Detach() interface{} {
+	return *meal
 }
 
 func (meal *Meal) String() string {

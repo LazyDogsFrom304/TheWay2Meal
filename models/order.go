@@ -14,31 +14,28 @@ type Order struct {
 	RequesterId     uint64    `json:"requesterId" structs:"requesterId"`
 	AcceptorId      uint64    `json:"acceptorId" structs:"acceptorId"`
 	OrderedMealId   uint64    `json:"mealId" structs:"mealId"`
+	IsDone          bool      `json:"isdone" structs:"isdone"`
+}
+
+func (order *Order) Done() {
+	order.IsDone = true
 }
 
 func (order *Order) String() string {
 	return fmt.Sprintf("Order create. No.%d,"+
 		" at %s, %s ordered %s,"+
-		" %s accepted the request.",
+		" %s accepted the request. "+
+		"is Done? %t",
 		order.OrderID,
 		order.OrderTime.Format("2006-01-02 15:04:05"),
 		order.RequesterName,
 		order.OrderedMealName,
-		order.AcceptorName)
+		order.AcceptorName,
+		order.IsDone)
 }
 
-func (order *Order) Detach() *Order {
-	newOne := &Order{
-		OrderID:         order.OrderID,
-		OrderTime:       order.OrderTime,
-		RequesterName:   order.RequesterName,
-		AcceptorName:    order.AcceptorName,
-		OrderedMealName: order.OrderedMealName,
-		RequesterId:     order.RequesterId,
-		AcceptorId:      order.AcceptorId,
-		OrderedMealId:   order.OrderedMealId,
-	}
-	return newOne
+func (order *Order) Detach() interface{} {
+	return *order
 }
 
 const (

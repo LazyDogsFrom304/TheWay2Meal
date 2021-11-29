@@ -11,7 +11,7 @@ import (
 var userFmt = PaintStringFunc("user")
 
 func Test_UserSerializable(t *testing.T) {
-	for _, user := range users {
+	for _, user := range Users {
 		log.Println(userFmt(user))
 	}
 }
@@ -24,9 +24,9 @@ func Test_Balance(t *testing.T) {
 
 	appendOrder := func(dealNums int) {
 		for i := 0; i < dealNums; i++ {
-			meal := meals[rand.Intn(len(meals))]
-			users[rand.Intn(len(users))].Request(meal)
-			users[rand.Intn(len(users))].Accept(meal)
+			meal := Meals[rand.Intn(len(Meals))]
+			Users[rand.Intn(len(Users))].Request(meal)
+			Users[rand.Intn(len(Users))].Accept(meal)
 			wg.Done()
 		}
 	}
@@ -39,7 +39,7 @@ func Test_Balance(t *testing.T) {
 
 	var sum float64
 
-	for _, user := range users {
+	for _, user := range Users {
 		sum += user.Balance
 		log.Println(userFmt(user))
 	}
