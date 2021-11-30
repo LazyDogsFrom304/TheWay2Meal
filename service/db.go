@@ -60,15 +60,20 @@ func (db DataBase) Get(simpleSQL string) (interface{}, bool) {
 // simpleSQL formats like:
 // `"users:id", obj`
 // pass by value
-func (db DataBase) Set(simpleSQL string, obj interface{}) bool {
+func (db DataBase) Set(simpleSQL string, obj interface{}) (interface{}, bool) {
 	tableName, id, ok := analysisSQL(simpleSQL)
 	if !ok {
-		return ok
+		return nil, ok
+	}
+	old, ok := db[tableName][id]
+	if !ok {
+		old = nil
 	}
 	db[tableName][id] = obj
-	return true
+	return old, true
 }
 
+// Deprecated
 func (db DataBase) DeleteOrder(simpleSQL string) (interface{}, bool) {
 	tableName, id, ok := analysisSQL(simpleSQL)
 	if !ok {

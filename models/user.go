@@ -16,14 +16,6 @@ func (user *User) UpdateBalance(pay float64) {
 	user.Balance += pay
 }
 
-func (user *User) Request(meal *Meal) {
-	user.UpdateBalance(-meal.Price)
-}
-
-func (user *User) Accept(meal *Meal) {
-	user.UpdateBalance(meal.Price)
-}
-
 func (user *User) Detach() interface{} {
 	return *user
 }

@@ -25,8 +25,8 @@ func Test_Balance(t *testing.T) {
 	appendOrder := func(dealNums int) {
 		for i := 0; i < dealNums; i++ {
 			meal := Meals[rand.Intn(len(Meals))]
-			Users[rand.Intn(len(Users))].Request(meal)
-			Users[rand.Intn(len(Users))].Accept(meal)
+			Users[rand.Intn(len(Users))].UpdateBalance(meal.Price)
+			Users[rand.Intn(len(Users))].UpdateBalance(-meal.Price)
 			wg.Done()
 		}
 	}

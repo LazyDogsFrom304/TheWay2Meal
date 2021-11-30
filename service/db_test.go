@@ -6,8 +6,8 @@ import (
 	"theway2meal/models"
 )
 
+// For test only
 func clear() {
-	// Dangerous
 	singleInstanceDB = nil
 }
 
