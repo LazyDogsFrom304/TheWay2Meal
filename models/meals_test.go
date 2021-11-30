@@ -32,7 +32,7 @@ func Test_Order(t *testing.T) {
 	go orderMeal(totalCase / 2)
 	wg.Wait()
 
-	if Meals[0].Popularity+Meals[1].Popularity != totalCase {
+	if Meals[0].Popularity+Meals[1].Popularity != uint32(totalCase) {
 		t.Error("Unsynced error ")
 	}
 }

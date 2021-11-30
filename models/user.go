@@ -5,7 +5,7 @@ import (
 )
 
 type User struct {
-	UserID  uint64  `json:"userid" structs:"userid"`
+	UserID  uint32  `json:"userid" structs:"userid"`
 	Name    string  `json:"name" structs:"name"`
 	Balance float64 `json:"balance" structs:"balance"`
 }
@@ -17,11 +17,11 @@ func (user *User) UpdateBalance(pay float64) {
 }
 
 func (user *User) Request(meal *Meal) {
-	user.UpdateBalance(meal.Price)
+	user.UpdateBalance(-meal.Price)
 }
 
 func (user *User) Accept(meal *Meal) {
-	user.UpdateBalance(-meal.Price)
+	user.UpdateBalance(meal.Price)
 }
 
 func (user *User) Detach() interface{} {

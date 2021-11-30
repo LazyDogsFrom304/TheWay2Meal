@@ -6,10 +6,10 @@ import (
 )
 
 type Meal struct {
-	Id          int       `json:"id" structs:"id"`
+	Id          uint32    `json:"id" structs:"id"`
 	Name        string    `json:"name" structs:"name"`
 	Price       float64   `json:"price" structs:"price"`
-	Popularity  int       `json:"popularity" structs:"popularity"`
+	Popularity  uint32    `json:"popularity" structs:"popularity"`
 	LastOrdered time.Time `json:"lastordered" structs:"lastordered"`
 }
 

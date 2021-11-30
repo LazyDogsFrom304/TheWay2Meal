@@ -3,6 +3,7 @@
 package service
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -13,15 +14,25 @@ type DataBase map[string]Table
 
 // Global instance of database
 var MealTable, OrderDoneTable, OrderPendingTable, UserTable = make(Table), make(Table), make(Table), make(Table)
-var singleInstanceDB = DataBase{
-	"meals":         MealTable,
-	"ordersDone":    OrderDoneTable,
-	"ordersPending": OrderPendingTable,
-	"users":         UserTable,
-}
+var singleInstanceDB DataBase
 
 // Align with redis api
 func GetDefaultDB() DataBase {
+	if singleInstanceDB != nil {
+		fmt.Printf("singleInstanceDB is %v\n", singleInstanceDB)
+		return singleInstanceDB
+	}
+	return constructDB()
+}
+
+func constructDB() DataBase {
+	var MealTable, OrderDoneTable, OrderPendingTable, UserTable = make(Table), make(Table), make(Table), make(Table)
+	singleInstanceDB = DataBase{
+		"meals":         MealTable,
+		"ordersDone":    OrderDoneTable,
+		"ordersPending": OrderPendingTable,
+		"users":         UserTable,
+	}
 	return singleInstanceDB
 }
 
