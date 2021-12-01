@@ -1,0 +1,38 @@
+package service
+
+import (
+	"sync"
+	"theway2meal/models"
+)
+
+type doneOrderService struct {
+	service
+}
+
+var DoneOrderService = &doneOrderService{
+	service: service{
+		rwmutex:            &sync.RWMutex{},
+		tableName:          "ordersPending",
+		cache:              make([]interface{}, cacheCap),
+		handleBeforeUpdate: appendDoneOrder,
+	},
+}
+
+// A filter actually
+// obj:Order changes:[nil]
+func appendDoneOrder(obj interface{}, changes ...interface{}) interface{} {
+	if len(changes) > 0 {
+		panic("index out of the range of changes")
+	}
+
+	return obj
+}
+
+func (srv *pendingOrderService) GetDoneOrder(orderId uint32) *models.Order {
+	obj := srv.internalGet(orderId)
+	targetOrder, ok := obj.(models.Order)
+	if !ok {
+		return nil
+	}
+	return &targetOrder
+}

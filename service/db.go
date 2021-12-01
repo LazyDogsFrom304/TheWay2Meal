@@ -73,26 +73,6 @@ func (db DataBase) Set(simpleSQL string, obj interface{}) (interface{}, bool) {
 	return old, true
 }
 
-// Deprecated
-func (db DataBase) DeleteOrder(simpleSQL string) (interface{}, bool) {
-	tableName, id, ok := analysisSQL(simpleSQL)
-	if !ok {
-		return nil, ok
-	}
-	table, ok := db["ordersPending"]
-	if !ok {
-		log.Printf("tableName %s is not found\n", tableName)
-		return nil, ok
-	}
-	obj, ok := table[id]
-	if !ok && obj != nil {
-		log.Printf("index %d is not found\n", id)
-		return nil, ok
-	}
-	delete(table, id)
-	return obj, ok
-}
-
 func analysisSQL(simpleSQL string) (string, int, bool) {
 	keymap := strings.Split(simpleSQL, ":")
 	tableName := keymap[0]
