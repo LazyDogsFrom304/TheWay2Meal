@@ -3,7 +3,6 @@
 package service
 
 import (
-	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -71,7 +70,6 @@ func (db DataBase) Set(simpleSQL string, obj interface{}) (interface{}, bool) {
 	}
 
 	if obj != nil {
-		fmt.Println(obj)
 		db[tableName][id] = obj
 	} else {
 		delete(db[tableName], id)

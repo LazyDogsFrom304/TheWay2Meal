@@ -29,9 +29,9 @@ func processPendings(obj interface{}, changes ...interface{}) interface{} {
 	}
 
 	if obj != nil {
-		return obj
-	} else {
 		return nil
+	} else {
+		return changes[0]
 	}
 
 }

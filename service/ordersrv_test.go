@@ -60,7 +60,6 @@ func Test_OrderDone(t *testing.T) {
 		for i := 0; i < dealNums; i++ {
 			order := models.Orders[rand.Intn(len(models.Orders))].Detach().(models.Order)
 			uid := PendingOrderService.GenerateUID()
-			// t.Log(uid)
 			order.OrderID = uid
 
 			reqc <- order
@@ -71,9 +70,9 @@ func Test_OrderDone(t *testing.T) {
 	appendOrder := func(reqc chan models.Order, donec chan uint32) {
 		for order := range reqc {
 			// pending
-
 			PendingOrderService.Update(order.OrderID, order)
 			donec <- order.OrderID
+
 		}
 		close(donec)
 	}
@@ -82,8 +81,8 @@ func Test_OrderDone(t *testing.T) {
 		for orderId := range donec {
 			// consuming
 			oldOrder, _ := PendingOrderService.Update(orderId, nil)
-			// t.Log(oldOrder)
 			DoneOrderService.Update(orderId, oldOrder)
+			t.Log(len(singleInstanceDB["ordersDone"]))
 		}
 		flag <- true
 	}
@@ -96,8 +95,6 @@ func Test_OrderDone(t *testing.T) {
 	go consumeOrder(doneC, flag)
 	<-flag
 
-	t.Log(DoneOrderService.SelectAll())
-	t.Log(PendingOrderService.SelectAll())
 	if len(DoneOrderService.SelectAll()) != test_case ||
 		len(PendingOrderService.SelectAll()) != 0 {
 		t.Errorf("UID iota failed: Done is %d, Pending is %d",

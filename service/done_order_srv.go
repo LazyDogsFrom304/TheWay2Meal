@@ -25,7 +25,7 @@ func appendDoneOrder(obj interface{}, changes ...interface{}) interface{} {
 		panic("index out of the range of changes")
 	}
 
-	return obj
+	return changes[0]
 }
 
 func (srv *doneOrderService) GetDoneOrder(orderId uint32) *models.Order {
