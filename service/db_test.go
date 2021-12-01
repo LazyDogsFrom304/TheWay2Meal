@@ -65,7 +65,6 @@ func Test_SingleDBRead(t *testing.T) {
 func Test_Assert(t *testing.T) {
 	var userI interface{} = models.User{}
 	if user, ok := userI.(models.Meal); !ok {
-		fmt.Printf("user is %#v\n", user) // Zero value of models.Meal
+		t.Logf("user is %#v\n", user) // Zero value of models.Meal
 	}
-
 }

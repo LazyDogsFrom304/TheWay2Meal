@@ -12,7 +12,7 @@ type doneOrderService struct {
 var DoneOrderService = &doneOrderService{
 	service: service{
 		rwmutex:            &sync.RWMutex{},
-		tableName:          "ordersPending",
+		tableName:          "ordersDone",
 		cache:              make([]interface{}, cacheCap),
 		handleBeforeUpdate: appendDoneOrder,
 	},
@@ -28,7 +28,7 @@ func appendDoneOrder(obj interface{}, changes ...interface{}) interface{} {
 	return obj
 }
 
-func (srv *pendingOrderService) GetDoneOrder(orderId uint32) *models.Order {
+func (srv *doneOrderService) GetDoneOrder(orderId uint32) *models.Order {
 	obj := srv.internalGet(orderId)
 	targetOrder, ok := obj.(models.Order)
 	if !ok {
