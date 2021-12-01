@@ -36,7 +36,7 @@ func (srv *service) internalGet(id uint32) interface{} {
 	defer srv.rwmutex.RUnlock()
 
 	_db := GetDefaultDB()
-	obj, ok := _db.Get(srv.tableName + fmt.Sprint(id))
+	obj, ok := _db.Get(srv.tableName + ":" + fmt.Sprint(id))
 	if !ok {
 		return nil
 	}
@@ -48,11 +48,11 @@ func (srv *service) Update(id uint32, changes ...interface{}) (interface{}, erro
 	defer srv.rwmutex.Unlock()
 
 	_db := GetDefaultDB()
-	obj, _ := _db.Get(srv.tableName + fmt.Sprint(id))
+	obj, _ := _db.Get(srv.tableName + ":" + fmt.Sprint(id))
 
-	obj = srv.handleBeforeUpdate(obj, changes)
+	obj = srv.handleBeforeUpdate(obj, changes...)
 
-	old, ok := _db.Set(srv.tableName+fmt.Sprint(id), obj)
+	old, ok := _db.Set(srv.tableName+":"+fmt.Sprint(id), obj)
 	if !ok {
 		return nil, constructError(srv.tableName,
 			fmt.Sprintf("can't apply modification business id %d", id))
@@ -85,6 +85,9 @@ func (srv *service) Select(maxLen int, filter func(interface{}) bool) []interfac
 	return candidates
 }
 
-func (srv *service) SelectAll(filter func(interface{}) bool) []interface{} {
+func (srv *service) SelectAll() []interface{} {
+	filter := func(interface{}) bool {
+		return true
+	}
 	return srv.Select(0, filter)
 }

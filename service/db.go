@@ -3,7 +3,6 @@
 package service
 
 import (
-	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -19,7 +18,7 @@ var singleInstanceDB DataBase
 // Align with redis api
 func GetDefaultDB() DataBase {
 	if singleInstanceDB != nil {
-		fmt.Printf("singleInstanceDB is %v\n", singleInstanceDB)
+		// log.Printf("singleInstanceDB is %v\n", singleInstanceDB)
 		return singleInstanceDB
 	}
 	return constructDB()
