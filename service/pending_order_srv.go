@@ -7,6 +7,7 @@ import (
 
 type pendingOrderService struct {
 	service
+	indexNext int
 }
 
 var PendingOrderService = &pendingOrderService{
@@ -16,6 +17,7 @@ var PendingOrderService = &pendingOrderService{
 		cache:              make([]interface{}, cacheCap),
 		handleBeforeUpdate: processPendings,
 	},
+	indexNext: 0,
 }
 
 // A filter actually
@@ -31,6 +33,7 @@ func processPendings(obj interface{}, changes ...interface{}) interface{} {
 	} else {
 		return nil
 	}
+
 }
 
 func (srv *pendingOrderService) GetPendingOrder(orderId uint32) *models.Order {
@@ -40,4 +43,13 @@ func (srv *pendingOrderService) GetPendingOrder(orderId uint32) *models.Order {
 		return nil
 	}
 	return &targetOrder
+}
+
+func (srv *pendingOrderService) GenerateUID() uint32 {
+	srv.rwmutex.Lock()
+	defer srv.rwmutex.Unlock()
+
+	uid := srv.indexNext
+	srv.indexNext += 1
+	return uint32(uid)
 }

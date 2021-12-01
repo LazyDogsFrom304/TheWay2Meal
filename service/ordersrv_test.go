@@ -1,6 +1,8 @@
 package service
 
 import (
+	"math/rand"
+	"sync"
 	"testing"
 	"theway2meal/models"
 )
@@ -25,37 +27,81 @@ func Test_DoneOrderGet(t *testing.T) {
 	}
 }
 
-// func Test_OrderAppend(t *testing.T) {
-// 	clear()
-// 	db := GetDefaultDB()
-// 	db_loadTestingData(db)
-// 	var wg sync.WaitGroup
-// 	wg.Add(test_case)
+func Test_OrderPending(t *testing.T) {
+	clear()
+	var wg sync.WaitGroup
+	wg.Add(test_case)
 
-// 	appendOrder := func(dealNums int) {
-// 		for i := 0; i < dealNums; i++ {
-// 			meal := models.Meals[rand.Intn(len(models.Meals))]
-// 			UserService.Update(uint32(rand.Intn(len(models.Users))),
-// 				meal.Price)
-// 			UserService.Update(uint32(rand.Intn(len(models.Users))),
-// 				-meal.Price)
-// 			wg.Done()
-// 		}
-// 	}
+	appendOrder := func(dealNums int) {
+		for i := 0; i < dealNums; i++ {
+			order := models.Orders[rand.Intn(len(models.Orders))].Detach().(models.Order)
+			uid := PendingOrderService.GenerateUID()
+			order.OrderID = uid
+			PendingOrderService.Update(uid, order)
+			wg.Done()
+		}
+	}
 
-// 	N := 4
-// 	for i := 0; i < N; i++ {
-// 		go appendOrder(int(test_case) / N)
-// 	}
-// 	wg.Wait()
+	N := 4
+	for i := 0; i < N; i++ {
+		go appendOrder(int(test_case) / N)
+	}
+	wg.Wait()
 
-// 	var sum float64
-// 	for _, user := range UserService.SelectAll() {
-// 		sum += user.(models.User).Balance
-// 	}
+	if PendingOrderService.indexNext != test_case {
+		t.Errorf("UID iota failed: indexNext is %d", PendingOrderService.indexNext)
+	}
+}
 
-// 	if math.Abs(sum) > 1e4 {
-// 		t.Errorf("Bill checks failed: sum is %f", sum)
-// 	}
+func Test_OrderDone(t *testing.T) {
+	clear()
 
-// }
+	generateOrder := func(dealNums int, reqc chan models.Order) {
+		for i := 0; i < dealNums; i++ {
+			order := models.Orders[rand.Intn(len(models.Orders))].Detach().(models.Order)
+			uid := PendingOrderService.GenerateUID()
+			// t.Log(uid)
+			order.OrderID = uid
+
+			reqc <- order
+		}
+		close(reqc)
+	}
+
+	appendOrder := func(reqc chan models.Order, donec chan uint32) {
+		for order := range reqc {
+			// pending
+
+			PendingOrderService.Update(order.OrderID, order)
+			donec <- order.OrderID
+		}
+		close(donec)
+	}
+
+	consumeOrder := func(donec chan uint32, flag chan bool) {
+		for orderId := range donec {
+			// consuming
+			oldOrder, _ := PendingOrderService.Update(orderId, nil)
+			// t.Log(oldOrder)
+			DoneOrderService.Update(orderId, oldOrder)
+		}
+		flag <- true
+	}
+	reqC := make(chan models.Order, 100)
+	doneC := make(chan uint32, 100)
+	flag := make(chan bool)
+
+	go generateOrder(test_case, reqC)
+	go appendOrder(reqC, doneC)
+	go consumeOrder(doneC, flag)
+	<-flag
+
+	t.Log(DoneOrderService.SelectAll())
+	t.Log(PendingOrderService.SelectAll())
+	if len(DoneOrderService.SelectAll()) != test_case ||
+		len(PendingOrderService.SelectAll()) != 0 {
+		t.Errorf("UID iota failed: Done is %d, Pending is %d",
+			len(DoneOrderService.SelectAll()),
+			len(PendingOrderService.SelectAll()))
+	}
+}

@@ -21,7 +21,7 @@ var DoneOrderService = &doneOrderService{
 // A filter actually
 // obj:Order changes:[nil]
 func appendDoneOrder(obj interface{}, changes ...interface{}) interface{} {
-	if len(changes) > 0 {
+	if len(changes) != 1 {
 		panic("index out of the range of changes")
 	}
 
