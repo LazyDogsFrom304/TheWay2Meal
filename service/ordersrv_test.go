@@ -82,7 +82,6 @@ func Test_OrderDone(t *testing.T) {
 			// consuming
 			oldOrder, _ := PendingOrderService.Update(orderId, nil)
 			DoneOrderService.Update(orderId, oldOrder)
-			t.Log(len(singleInstanceDB["ordersDone"]))
 		}
 		flag <- true
 	}
