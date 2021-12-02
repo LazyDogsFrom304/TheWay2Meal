@@ -2,25 +2,25 @@ package models
 
 import (
 	"fmt"
-	"sync"
 	"time"
 )
 
 type Meal struct {
-	Id          int       `json:"id" structs:"id"`
+	Id          uint32    `json:"id" structs:"id"`
 	Name        string    `json:"name" structs:"name"`
-	Price       float32   `json:"price" structs:"price"`
-	Popularity  int       `json:"popularity" structs:"popularity"`
+	Price       float64   `json:"price" structs:"price"`
+	Popularity  uint32    `json:"popularity" structs:"popularity"`
 	LastOrdered time.Time `json:"lastordered" structs:"lastordered"`
-	lock        sync.Mutex
 }
 
 // Increment one by one synchronously
-func (meal *Meal) SyncAddition() {
-	meal.lock.Lock()
+func (meal *Meal) Update() {
 	meal.Popularity += 1
 	meal.LastOrdered = time.Now()
-	meal.lock.Unlock()
+}
+
+func (meal *Meal) Detach() interface{} {
+	return *meal
 }
 
 func (meal *Meal) String() string {
@@ -33,3 +33,7 @@ func (meal *Meal) String() string {
 		meal.Popularity,
 		meal.LastOrdered.Format("2000-01-01 01:01:01"))
 }
+
+const (
+	MealStatusOK = iota
+)
