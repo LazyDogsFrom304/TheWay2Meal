@@ -14,6 +14,8 @@ func orderPreviewHandler(c *gin.Context) {
 	_t := template.Must(template.ParseFiles(HTMLPath + "Order.html"))
 
 	_userName := c.MustGet(gin.AuthUserKey).(string)
+
+	// try to get cookie
 	_authCookie, _ := c.Request.Cookie(AUTHKEY)
 	fmt.Println(_authCookie.Value)
 	if _authCookie == nil {
@@ -36,4 +38,8 @@ func orderPreviewHandler(c *gin.Context) {
 	_orderInfo := [...]interface{}{_userName, _mealInfo, _candiAccepter}
 
 	_t.Execute(c.Writer, _orderInfo)
+}
+
+func orderApplyHandler(c *gin.Context) {
+
 }
