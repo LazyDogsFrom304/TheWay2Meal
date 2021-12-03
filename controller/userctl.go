@@ -13,7 +13,7 @@ import (
 func getAccounts(authPath string) gin.Accounts {
 	_f, e := os.Open(authPath)
 	if e != nil {
-		fmt.Errorf("Fail to find authFile %s\n", authPath)
+		fmt.Printf("Fail to find authFile %s\n", authPath)
 		return nil
 	}
 	defer _f.Close()
@@ -27,7 +27,7 @@ func getAccounts(authPath string) gin.Accounts {
 		}
 		_accPairDict := strings.Split(string(_accPair), " ")
 		if len(_accPairDict) != 2 {
-			fmt.Errorf("Format error meets when loading auths.\n")
+			fmt.Printf("Format error meets when loading auths.\n")
 			return nil
 		}
 		_accounts[_accPairDict[0]] = _accPairDict[1]

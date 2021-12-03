@@ -6,23 +6,22 @@
 <body>
 
 <h1 style="text-align:center;">Menu</h1>
+{{with index . 0}}
+User:<a href="/user/{{.}}">{{.}}</a></br>
+{{end}}
 
 <h2>First Floor</h2>
 
-  {{range $meal := index . 0}}
+  {{range $meal := index . 1}}
     <!-- href 属性用于指定超链接目标的 URL-->
-    <a href="#">{{.Name}}</a></br>
-  {{else}}
-    没有遍历到任何内容
+    <a href="/menu/{{.Id}}">{{.Name}}</a></br>
   {{end}}
 
 <h2>Second Floor</h2>
 
-  {{range $meal := index . 1}}
+  {{range $meal := index . 2}}
     <!-- href 属性用于指定超链接目标的 URL-->
-    <a href="#">{{.Name}}</a></br>
-  {{else}}
-    没有遍历到任何内容
+    <a href="/menu/{{.Id}}">{{.Name}}</a></br>
   {{end}}
 	
 <!-- <form style="text-align:center;">

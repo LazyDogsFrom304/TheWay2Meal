@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+</head>
+<body>
+
+<h1 style="text-align:left;">Order Request</h1>
+
+<p>
+  Requester:{{index . 0}}</br>
+  {{with index . 1}}
+  Meal:{{.Name}}</br>
+  Price:{{.Price}}¥</br>
+  Popularity:{{.Popularity}}</br>
+  {{end}}
+  Accpter:
+</p>
+
+</body>
+</html>

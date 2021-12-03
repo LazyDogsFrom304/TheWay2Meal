@@ -6,10 +6,11 @@ import (
 
 func MapRoutes() *gin.Engine {
 	ret := gin.Default()
-	ret.LoadHTMLFiles(HTMLPath + "Menu.html")
+	ret.LoadHTMLGlob(HTMLPath + "*.html")
 
 	customers := ret.Group("/", gin.BasicAuth(getAccounts(AUTHPATH)))
 	customers.GET("/menu", menuHandler)
+	customers.GET("/menu/:id", orderPreviewHandler)
 	// customers.GET("/usr/:name", func(c *gin.Context) {
 	// 	user := c.MustGet(gin.AuthUserKey).(string)
 	// 	if res, ok := getAccounts(AUTHPATH)[user]; ok {
