@@ -10,7 +10,7 @@ import (
 func Test_PendingOrderGet(t *testing.T) {
 	clear()
 	db := GetDefaultDB()
-	db_loadTestingData(db)
+	DB_loadTestingData(db)
 	order2 := PendingOrderService.GetPendingOrder(2)
 	if order2.OrderTime != models.Orders[2].OrderTime {
 		t.Error("PendingOrderService Get test failed")
@@ -20,7 +20,7 @@ func Test_PendingOrderGet(t *testing.T) {
 func Test_DoneOrderGet(t *testing.T) {
 	clear()
 	db := GetDefaultDB()
-	db_loadTestingData(db)
+	DB_loadTestingData(db)
 	order0 := DoneOrderService.GetDoneOrder(0)
 	if order0.OrderTime != models.Orders[0].OrderTime {
 		t.Error("DoneOrderService Get test failed")

@@ -10,12 +10,21 @@ var Meals = []*Meal{
 		Id:          0,
 		Name:        "grilled goose",
 		Price:       10.3,
+		Floor:       1,
 		LastOrdered: time.Now(),
 	},
 	{
 		Id:          1,
 		Name:        "fried chicken",
 		Price:       11.3,
+		Floor:       2,
+		LastOrdered: time.Now(),
+	},
+	{
+		Id:          2,
+		Name:        "fish",
+		Price:       12.3,
+		Floor:       2,
 		LastOrdered: time.Now(),
 	},
 }
