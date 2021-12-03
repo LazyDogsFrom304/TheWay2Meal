@@ -9,18 +9,18 @@
 
 <h2>First Floor</h2>
 
-  {{range $meal := index $.Article 0}}
+  {{range $meal := index . 0}}
     <!-- href 属性用于指定超链接目标的 URL-->
-    <a href="#">{{$meal}}</a>
+    <a href="#">{{.Name}}</a></br>
   {{else}}
     没有遍历到任何内容
   {{end}}
 
 <h2>Second Floor</h2>
 
-  {{range $meal := index $.Article 1}}
+  {{range $meal := index . 1}}
     <!-- href 属性用于指定超链接目标的 URL-->
-    <a href="#">{{$meal}}</a>
+    <a href="#">{{.Name}}</a></br>
   {{else}}
     没有遍历到任何内容
   {{end}}
