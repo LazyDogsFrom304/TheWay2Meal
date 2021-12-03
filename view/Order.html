@@ -15,6 +15,11 @@
   Popularity:{{.Popularity}}</br>
   {{end}}
   Accpter:
+  <select name="accept">
+  {{range $user := index . 2}}
+  <option value="{{.UserID}}">{{.Name}}</option>
+  {{end}}
+  </select>
 </p>
 
 </body>

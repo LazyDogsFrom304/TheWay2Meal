@@ -7,4 +7,5 @@ const (
 	PathUser  = "/user"
 	HTMLPath  = "view/"
 	AUTHPATH  = "data/auth.txt"
+	AUTHKEY   = "auth_user"
 )
