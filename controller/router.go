@@ -10,7 +10,8 @@ func MapRoutes() *gin.Engine {
 
 	customers := ret.Group("/", gin.BasicAuth(getAccounts(AUTHPATH)))
 	customers.GET("/menu", menuHandler)
-	customers.GET("/menu/:id", orderPreviewHandler)
+	customers.GET("/menu/:"+MEALKEY, orderPreviewHandler)
+	customers.POST("/order", orderApplyHandler)
 
 	// customers.GET("/usr/:name", func(c *gin.Context) {
 	// 	user := c.MustGet(gin.AuthUserKey).(string)

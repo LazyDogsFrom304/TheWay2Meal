@@ -7,24 +7,21 @@
 
 <h1 style="text-align:left;">Order Request</h1>
 
-<p>
+
   Requester:{{index . 0}}</br>
   {{with index . 1}}
   Meal:{{.Name}}</br>
   Price:{{.Price}}¥</br>
   Popularity:{{.Popularity}}</br>
   {{end}}
-  Accpter:
-  <select name="accept">
-  {{range $user := index . 2}}
-  <option value="{{.UserID}}">{{.Name}}</option>
-  {{end}}
-  </select>
-</p>
 
 <form action="/order" method="post">
-  <input name="accepterid" id="accepterid" value="1">
-  <input name="acceptername" id="acceptername" value="jzh">
+  <label for="acceptselect">Acceptor</label>
+  <select name="{{index . 3}}" id="acceptselect">
+  {{range $user := index . 2}}
+  <option value="{{.UserID}}:{{.Name}}">{{.Name}}</option>
+  {{end}}
+  </select>
   <button>Upvote</button>
 </form>
 

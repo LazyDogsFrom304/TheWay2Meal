@@ -8,21 +8,21 @@ import (
 var Meals = []*Meal{
 	{
 		Id:          0,
-		Name:        "grilled goose",
+		Name:        "烧鹅饭",
 		Price:       10.3,
 		Floor:       1,
 		LastOrdered: time.Now(),
 	},
 	{
 		Id:          1,
-		Name:        "fried chicken",
+		Name:        "鸡腿饭",
 		Price:       11.3,
 		Floor:       2,
 		LastOrdered: time.Now(),
 	},
 	{
 		Id:          2,
-		Name:        "fish",
+		Name:        "鱼香肉丝",
 		Price:       12.3,
 		Floor:       2,
 		LastOrdered: time.Now(),
