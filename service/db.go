@@ -3,9 +3,11 @@
 package service
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
+	"theway2meal/models"
 )
 
 type Table map[int]interface{}
@@ -86,4 +88,20 @@ func analysisSQL(simpleSQL string) (string, int, bool) {
 	}
 
 	return tableName, id, true
+}
+
+// Test only
+func DB_loadTestingData(db DataBase) {
+	for _, user := range models.Users {
+		db.Set("users:"+fmt.Sprint(user.UserID), *user)
+	}
+	for _, order := range models.Orders[:1] {
+		db.Set("ordersDone:"+fmt.Sprint(order.OrderID), *order)
+	}
+	for _, order := range models.Orders[1:] {
+		db.Set("ordersPending:"+fmt.Sprint(order.OrderID), *order)
+	}
+	for _, meal := range models.Meals {
+		db.Set("meals:"+fmt.Sprint(meal.Id), *meal)
+	}
 }

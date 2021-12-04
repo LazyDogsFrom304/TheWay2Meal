@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"testing"
 	"theway2meal/models"
 )
@@ -13,25 +12,10 @@ func clear() {
 	singleInstanceDB = nil
 }
 
-func db_loadTestingData(db DataBase) {
-	for _, user := range models.Users {
-		db.Set("users:"+fmt.Sprint(user.UserID), *user)
-	}
-	for _, order := range models.Orders[:1] {
-		db.Set("ordersDone:"+fmt.Sprint(order.OrderID), *order)
-	}
-	for _, order := range models.Orders[1:] {
-		db.Set("ordersPending:"+fmt.Sprint(order.OrderID), *order)
-	}
-	for _, meal := range models.Meals {
-		db.Set("meals:"+fmt.Sprint(meal.Id), *meal)
-	}
-}
-
 func Test_SingleDBWrite(t *testing.T) {
 	clear()
 	db := GetDefaultDB()
-	db_loadTestingData(db)
+	DB_loadTestingData(db)
 	obj, _ := db.Get("users:1")
 	user1, _ := obj.(models.User)
 	user1.Balance += 64.0
@@ -50,7 +34,7 @@ func Test_SingleDBWrite(t *testing.T) {
 func Test_SingleDBRead(t *testing.T) {
 	clear()
 	db := GetDefaultDB()
-	db_loadTestingData(db)
+	DB_loadTestingData(db)
 	t.Log(db["users"][1].(models.User))
 	t.Log(models.Users[1])
 	user1, _ := db.Get("users:1")

@@ -10,7 +10,7 @@ import (
 func Test_MealGet(t *testing.T) {
 	clear()
 	db := GetDefaultDB()
-	db_loadTestingData(db)
+	DB_loadTestingData(db)
 	meal0 := MealService.GetMeal(0)
 	if meal0.Name != models.Meals[0].Name {
 		t.Error("MealService Get test failed")
@@ -20,7 +20,7 @@ func Test_MealGet(t *testing.T) {
 func Test_MealUpdate(t *testing.T) {
 	clear()
 	db := GetDefaultDB()
-	db_loadTestingData(db)
+	DB_loadTestingData(db)
 	var wg sync.WaitGroup
 	wg.Add(test_case)
 

@@ -9,6 +9,7 @@ type Meal struct {
 	Id          uint32    `json:"id" structs:"id"`
 	Name        string    `json:"name" structs:"name"`
 	Price       float64   `json:"price" structs:"price"`
+	Floor       int       `json:"floor" structs:"floor"`
 	Popularity  uint32    `json:"popularity" structs:"popularity"`
 	LastOrdered time.Time `json:"lastordered" structs:"lastordered"`
 }
@@ -26,12 +27,14 @@ func (meal *Meal) Detach() interface{} {
 func (meal *Meal) String() string {
 	return fmt.Sprintf("Meal Id %d is %s, cost %f yuan, "+
 		"ordered for %d times, "+
+		"locate at %d Floor"+
 		"and the last time when it's ordered is at %s.",
 		meal.Id,
 		meal.Name,
 		meal.Price,
 		meal.Popularity,
-		meal.LastOrdered.Format("2000-01-01 01:01:01"))
+		meal.Floor,
+		meal.LastOrdered.Format("2006-01-02 15:04:05"))
 }
 
 const (
