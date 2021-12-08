@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+</head>
+<body>
+
+<h1 style="text-align:center;">User</h1>
+<a href="/menu">跳转菜单</a></br>
+{{with index . 0}}
+User:<a href="/user/{{.UserID}}">{{.Name}}</a></br>
+Balance:{{.Balance}}</br>
+{{end}}
+
+<h2>Order Requested</h2>
+
+  {{range $req := index . 1}}
+    No.{{.OrderID}}  {{.RequesterName}} 请  {{.AcceptorName}} 带了
+    <a href="/menu/{{.OrderedMealId}}">{{.OrderedMealName}}</a>
+    /{{.Price}}, 时间：{{.OrderTime}}。
+    <form action="/user/{{.RequesterId}}" method="post" style="display:inline">
+      <button name="cancelorderid" type="submit" value={{.OrderID}}>Cancel</button>
+    </form></br>
+  {{end}}
+
+<h2>Order Accepting</h2>
+
+  {{range $req := index . 2}}
+  No.{{.OrderID}}  {{.RequesterName}} 请  {{.AcceptorName}} 带了
+  <a href="/menu/{{.OrderedMealId}}">{{.OrderedMealName}}</a>
+  /{{.Price}}, 时间：{{.OrderTime}}。
+    <form action="/user/{{.RequesterId}}" method="post" style="display:inline">
+      <button name="finishorderid" type="submit" value={{.OrderID}}>Done</button>
+    </form></br>
+  {{end}}
+
+  <h2>Order Done</h2>
+
+  {{range $req := index . 3}}
+  No.{{.OrderID}}  {{.RequesterName}} 请  {{.AcceptorName}} 带了
+  <a href="/menu/{{.OrderedMealId}}">{{.OrderedMealName}}</a>
+  /{{.Price}}, 时间：{{.OrderTime}}。
+    <form action="/user/{{.RequesterId}}" method="post" style="display:inline">
+      <button name="finishorderid" type="submit" value={{.OrderID}}>Done</button>
+    </form></br>
+  {{end}}
+
+</body>
+</html>
