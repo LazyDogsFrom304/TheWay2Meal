@@ -28,7 +28,7 @@ func processPendings(obj interface{}, changes ...interface{}) interface{} {
 		panic("index out of the range of changes")
 	}
 
-	if obj != nil {
+	if obj != nil && changes[0] == nil {
 		return nil
 	} else {
 		return changes[0]

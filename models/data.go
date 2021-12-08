@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+const TimeFormat = "2006-01-02 15:04:05"
+
 var Meals = []*Meal{
 	{
 		Id:          0,
@@ -50,36 +52,39 @@ var Users = []*User{
 var Orders = []*Order{
 	{
 		OrderID:         0,
-		OrderTime:       time.Now(),
+		OrderTime:       time.Now().Format(TimeFormat),
 		RequesterName:   Users[0].Name,
 		AcceptorName:    Users[1].Name,
 		OrderedMealName: Meals[0].Name,
 		RequesterId:     0,
 		AcceptorId:      1,
 		OrderedMealId:   0,
-		IsDone:          false,
+		Price:           Meals[0].Price,
+		IsReadyDelete:   false,
 	},
 	{
 		OrderID:         1,
-		OrderTime:       time.Now(),
+		OrderTime:       time.Now().Format(TimeFormat),
 		RequesterName:   Users[1].Name,
 		AcceptorName:    Users[2].Name,
 		OrderedMealName: Meals[1].Name,
 		RequesterId:     1,
 		AcceptorId:      2,
 		OrderedMealId:   1,
-		IsDone:          false,
+		Price:           Meals[1].Price,
+		IsReadyDelete:   false,
 	},
 	{
 		OrderID:         2,
-		OrderTime:       time.Now(),
+		OrderTime:       time.Now().Format(TimeFormat),
 		RequesterName:   Users[0].Name,
 		AcceptorName:    Users[2].Name,
 		OrderedMealName: Meals[1].Name,
 		RequesterId:     0,
 		AcceptorId:      2,
 		OrderedMealId:   1,
-		IsDone:          false,
+		Price:           Meals[1].Price,
+		IsReadyDelete:   false,
 	},
 }
 

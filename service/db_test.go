@@ -10,12 +10,13 @@ const test_case = 10000
 // For test only
 func clear() {
 	singleInstanceDB = nil
+	PendingOrderService.indexNext = 0
 }
 
 func Test_SingleDBWrite(t *testing.T) {
 	clear()
 	db := GetDefaultDB()
-	DB_loadTestingData(db)
+	DB_loadTestingData(db, true, true, true)
 	obj, _ := db.Get("users:1")
 	user1, _ := obj.(models.User)
 	user1.Balance += 64.0
@@ -34,7 +35,7 @@ func Test_SingleDBWrite(t *testing.T) {
 func Test_SingleDBRead(t *testing.T) {
 	clear()
 	db := GetDefaultDB()
-	DB_loadTestingData(db)
+	DB_loadTestingData(db, true, true, true)
 	t.Log(db["users"][1].(models.User))
 	t.Log(models.Users[1])
 	user1, _ := db.Get("users:1")

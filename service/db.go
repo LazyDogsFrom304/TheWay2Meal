@@ -91,17 +91,30 @@ func analysisSQL(simpleSQL string) (string, int, bool) {
 }
 
 // Test only
-func DB_loadTestingData(db DataBase) {
-	for _, user := range models.Users {
-		db.Set("users:"+fmt.Sprint(user.UserID), *user)
+func DB_loadTestingData(db DataBase, u, o, m bool) {
+	if u {
+		for _, user := range models.Users {
+			db.Set("users:"+fmt.Sprint(user.UserID), *user)
+		}
 	}
-	for _, order := range models.Orders[:1] {
-		db.Set("ordersDone:"+fmt.Sprint(order.OrderID), *order)
+
+	if o {
+		index := 0
+		for _, order := range models.Orders[:1] {
+			db.Set("ordersDone:"+fmt.Sprint(order.OrderID), *order)
+			index++
+		}
+		for _, order := range models.Orders[1:] {
+			db.Set("ordersPending:"+fmt.Sprint(order.OrderID), *order)
+			index++
+		}
+		PendingOrderService.indexNext = index
 	}
-	for _, order := range models.Orders[1:] {
-		db.Set("ordersPending:"+fmt.Sprint(order.OrderID), *order)
+
+	if m {
+		for _, meal := range models.Meals {
+			db.Set("meals:"+fmt.Sprint(meal.Id), *meal)
+		}
 	}
-	for _, meal := range models.Meals {
-		db.Set("meals:"+fmt.Sprint(meal.Id), *meal)
-	}
+
 }
