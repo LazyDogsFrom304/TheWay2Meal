@@ -64,7 +64,7 @@ func orderPreviewHandler(c *gin.Context) {
 }
 
 func orderApplyHandler(c *gin.Context) {
-	_t := template.Must(template.ParseFiles(HTMLPath + "Order_Done.html"))
+	_t := template.Must(template.ParseFiles(HTMLPath + "Order_Pending.html"))
 
 	_acceptInfo := strings.Split(c.PostForm(ACCEPTERID), ":")
 
@@ -91,17 +91,22 @@ func orderApplyHandler(c *gin.Context) {
 	_requestID, _ := strconv.Atoi(_cookieMap[REQUESTERID])
 	_orderMealID, _ := strconv.Atoi(_cookieMap[ORDERMEALID])
 	_orderUid := service.PendingOrderService.GenerateUID()
+	_price, _ := strconv.ParseFloat(_cookieMap[MEALPRICE], 64)
+
 	_orderPending := models.Order{
 		OrderID:         _orderUid,
-		OrderTime:       time.Now(),
+		OrderTime:       time.Now().Format(models.TimeFormat),
 		RequesterName:   _cookieMap[REQUESTERNAME],
-		AcceptorName:    _cookieMap[_acceptInfo[1]],
-		OrderedMealName: _cookieMap[ORDERMEALID],
+		AcceptorName:    _acceptInfo[1],
+		OrderedMealName: _cookieMap[MEALNAME],
+		Price:           _price,
 		RequesterId:     uint32(_requestID),
 		AcceptorId:      uint32(_selectID),
 		OrderedMealId:   uint32(_orderMealID),
-		IsDone:          false,
+		IsReadyDelete:   false,
 	}
+
+	fmt.Println(_orderPending)
 	service.PendingOrderService.Update(_orderUid, _orderPending)
 
 	_t.Execute(c.Writer, _orderInfo)

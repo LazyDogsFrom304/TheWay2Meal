@@ -11,7 +11,7 @@ import (
 func Test_UserGet(t *testing.T) {
 	clear()
 	db := GetDefaultDB()
-	DB_loadTestingData(db)
+	DB_loadTestingData(db, true, true, true)
 	user2 := UserService.GetUser(2)
 	if user2.Name != models.Users[2].Name {
 		t.Error("UserService Get test failed")
@@ -21,7 +21,7 @@ func Test_UserGet(t *testing.T) {
 func Test_UserHandle(t *testing.T) {
 	clear()
 	db := GetDefaultDB()
-	DB_loadTestingData(db)
+	DB_loadTestingData(db, true, true, true)
 	var wg sync.WaitGroup
 	wg.Add(test_case)
 

@@ -20,7 +20,7 @@ func menuHandler(c *gin.Context) {
 
 	_firstFloor := service.MealService.Select(0, floorSelector(1))
 	_secondFloor := service.MealService.Select(0, floorSelector(2))
-	_menuItems := [...]interface{}{_userName, _firstFloor, _secondFloor, ACCEPTERID}
+	_menuItems := [...]interface{}{_authUser, _firstFloor, _secondFloor, ACCEPTERID}
 
 	// set cookie
 	setCookies(c, map[string]string{
