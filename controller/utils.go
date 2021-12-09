@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"theway2meal/models"
@@ -27,11 +27,11 @@ func restoreCookies(c *gin.Context, keys []string) map[string]string {
 
 		_authCookie, e := c.Cookie(k)
 		if e != nil {
-			fmt.Printf("%s is not stored in cookie\n", k)
+			log.Printf("%s is not stored in cookie\n", k)
 			continue
 		}
 		restored[k] = _authCookie
-		fmt.Printf("cookie key %s restored %s\n", k, _authCookie)
+		log.Printf("cookie key %s restored %s\n", k, _authCookie)
 	}
 	return restored
 }

@@ -9,6 +9,6 @@ var mealFmt = PaintStringFunc("meal")
 
 func Test_MealSerializable(t *testing.T) {
 	for _, meal := range Meals {
-		log.Println(mealFmt(meal))
+		log.Println(mealFmt(&meal))
 	}
 }

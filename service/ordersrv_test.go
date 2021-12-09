@@ -11,8 +11,8 @@ func Test_PendingOrderGet(t *testing.T) {
 	clear()
 	db := GetDefaultDB()
 	DB_loadTestingData(db, true, true, true)
-	order2 := PendingOrderService.GetPendingOrder(2)
-	if order2.OrderTime != models.Orders[2].OrderTime {
+	order2, e := PendingOrderService.GetPendingOrder(2)
+	if e != nil || order2.OrderTime != models.Orders[2].OrderTime {
 		t.Error("PendingOrderService Get test failed")
 	}
 }
@@ -21,8 +21,8 @@ func Test_DoneOrderGet(t *testing.T) {
 	clear()
 	db := GetDefaultDB()
 	DB_loadTestingData(db, true, true, true)
-	order0 := DoneOrderService.GetDoneOrder(0)
-	if order0.OrderTime != models.Orders[0].OrderTime {
+	order0, e := DoneOrderService.GetDoneOrder(0)
+	if e != nil || order0.OrderTime != models.Orders[0].OrderTime {
 		t.Error("DoneOrderService Get test failed")
 	}
 }
@@ -44,7 +44,7 @@ func Test_OrderPending(t *testing.T) {
 
 	N := 4
 	for i := 0; i < N; i++ {
-		go appendOrder(int(test_case) / N)
+		go appendOrder(test_case / N)
 	}
 	wg.Wait()
 
@@ -67,7 +67,7 @@ func Test_OrderDone(t *testing.T) {
 		close(reqc)
 	}
 
-	appendOrder := func(reqc chan models.Order, donec chan uint32) {
+	appendOrder := func(reqc chan models.Order, donec chan int) {
 		for order := range reqc {
 			// pending
 			PendingOrderService.Update(order.OrderID, order)
@@ -77,7 +77,7 @@ func Test_OrderDone(t *testing.T) {
 		close(donec)
 	}
 
-	consumeOrder := func(donec chan uint32, flag chan bool) {
+	consumeOrder := func(donec chan int, flag chan bool) {
 		for orderId := range donec {
 			// consuming
 			oldOrder, _ := PendingOrderService.Update(orderId, nil)
@@ -86,7 +86,7 @@ func Test_OrderDone(t *testing.T) {
 		flag <- true
 	}
 	reqC := make(chan models.Order, 100)
-	doneC := make(chan uint32, 100)
+	doneC := make(chan int, 100)
 	flag := make(chan bool)
 
 	go generateOrder(test_case, reqC)

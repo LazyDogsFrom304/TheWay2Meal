@@ -1,7 +1,9 @@
 package controller
 
 import (
+	"fmt"
 	"html/template"
+	"log"
 	"strconv"
 	"theway2meal/models"
 	"theway2meal/service"
@@ -11,10 +13,17 @@ import (
 
 func menuHandler(c *gin.Context) {
 	_userName := c.MustGet(gin.AuthUserKey).(string)
-	_authUser := service.UserService.Select(0, func(i interface{}) bool {
+	_authUsers := service.UserService.Select(0, func(i interface{}) bool {
 		_user := i.(models.User)
 		return _user.Name == _userName
-	})[0] // Must exited
+	})
+
+	if len(_authUsers) != 1 {
+		log.Println(fmt.Errorf("fail to find user %s in database", _userName))
+		return
+	}
+
+	_authUser := _authUsers[0] // Must exited
 
 	_t := template.Must(template.ParseFiles(HTMLPath + "Menu.html"))
 
@@ -24,7 +33,7 @@ func menuHandler(c *gin.Context) {
 
 	// set cookie
 	setCookies(c, map[string]string{
-		AUTHKEY: strconv.Itoa(int(_authUser.(models.User).UserID))})
+		AUTHKEY: strconv.Itoa(_authUser.(models.User).UserID)})
 
 	_t.Execute(c.Writer, _menuItems)
 }

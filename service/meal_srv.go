@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"sync"
 	"theway2meal/models"
 )
@@ -20,20 +21,29 @@ var MealService = &mealService{
 }
 
 // changes: [nil]
-func updateMealRecords(obj interface{}, changes ...interface{}) interface{} {
+func updateMealRecords(obj interface{}, changes ...interface{}) (interface{}, error) {
 	if len(changes) > 0 {
-		panic("update Meals record needs no args")
+		return nil, fmt.Errorf("index out of the range of changes, expect 0, get %d", len(changes))
 	}
-	targetMeal := obj.(models.Meal)
-	targetMeal.Update()
-	return targetMeal
-}
 
-func (srv *mealService) GetMeal(mealId uint32) *models.Meal {
-	obj := srv.internalGet(mealId)
 	targetMeal, ok := obj.(models.Meal)
 	if !ok {
-		return nil
+		return nil, fmt.Errorf("can't updateMealRecords %v as models.Meal", obj)
 	}
-	return &targetMeal
+	targetMeal.Update()
+	return targetMeal, nil
+}
+
+func (srv *mealService) GetMeal(mealId int) (meal models.Meal, err error) {
+	obj, err := srv.internalGet(mealId)
+	if err != nil {
+		meal = models.Meal{}
+		return
+	}
+
+	meal, ok := obj.(models.Meal)
+	if !ok {
+		err = fmt.Errorf("can't construct %v as models.Meal", obj)
+	}
+	return
 }

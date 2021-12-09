@@ -7,7 +7,7 @@ import (
 
 const TimeFormat = "2006-01-02 15:04:05"
 
-var Meals = []*Meal{
+var Meals = []Meal{
 	{
 		Id:          0,
 		Name:        "烧鹅饭",
@@ -31,7 +31,7 @@ var Meals = []*Meal{
 	},
 }
 
-var Users = []*User{
+var Users = []User{
 	{
 		UserID:  0,
 		Name:    "gs",
@@ -49,7 +49,7 @@ var Users = []*User{
 	},
 }
 
-var Orders = []*Order{
+var Orders = []Order{
 	{
 		OrderID:         0,
 		OrderTime:       time.Now().Format(TimeFormat),

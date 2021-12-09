@@ -1,11 +1,14 @@
 package main
 
 import (
+	"log"
 	"theway2meal/controller"
 	"theway2meal/service"
 )
 
 func main() {
+	log.SetFlags(log.Lshortfile | log.Ldate | log.Lmicroseconds)
+
 	//test loading data
 	db := service.GetDefaultDB()
 	service.DB_loadTestingData(db, true, true, true)

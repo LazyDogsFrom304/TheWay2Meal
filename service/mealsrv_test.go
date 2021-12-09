@@ -11,9 +11,9 @@ func Test_MealGet(t *testing.T) {
 	clear()
 	db := GetDefaultDB()
 	DB_loadTestingData(db, true, true, true)
-	meal0 := MealService.GetMeal(0)
-	if meal0.Name != models.Meals[0].Name {
-		t.Error("MealService Get test failed")
+	meal0, e := MealService.GetMeal(0)
+	if e != nil || meal0.Name != models.Meals[0].Name {
+		t.Errorf("MealService Get test failed, %v", e)
 	}
 }
 
@@ -26,18 +26,18 @@ func Test_MealUpdate(t *testing.T) {
 
 	appendOrder := func(dealNums int) {
 		for i := 0; i < dealNums; i++ {
-			MealService.Update(uint32(rand.Intn(len(models.Meals))))
+			MealService.Update(rand.Intn(len(models.Meals)))
 			wg.Done()
 		}
 	}
 
 	N := 4
 	for i := 0; i < N; i++ {
-		go appendOrder(int(test_case) / N)
+		go appendOrder(test_case / N)
 	}
 	wg.Wait()
 
-	var sum uint32
+	var sum int
 	for _, user := range MealService.SelectAll() {
 		sum += user.(models.Meal).Popularity
 	}

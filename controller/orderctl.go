@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"html/template"
+	"log"
 	"strconv"
 	"strings"
 	"theway2meal/models"
@@ -13,6 +14,13 @@ import (
 )
 
 func orderPreviewHandler(c *gin.Context) {
+	var err error
+	defer func() {
+		if err != nil {
+			log.Println(err.Error())
+		}
+	}()
+
 	_t := template.Must(template.ParseFiles(HTMLPath + "Order.html"))
 
 	_userName := c.MustGet(gin.AuthUserKey).(string)
@@ -26,20 +34,24 @@ func orderPreviewHandler(c *gin.Context) {
 	// try to get cookie
 	_cookieMap := restoreCookies(c, []string{AUTHKEY})
 	if len(_cookieMap) == 0 {
-		fmt.Println("Authkey is not stored in cookie.")
+		log.Println("Authkey is not stored in cookie.")
 		return
 	}
 
-	_mealId, e := strconv.Atoi(c.Params.ByName(MEALKEY))
-	if e != nil {
-		fmt.Printf("url error when precessing mealId.")
+	_mealId, err := strconv.Atoi(c.Params.ByName(MEALKEY))
+	if err != nil {
 		return
 	}
-	_mealInfo := service.MealService.GetMeal(uint32(_mealId))
+
+	_mealInfo, err := service.MealService.GetMeal(_mealId)
+	if err != nil {
+		return
+	}
+
 	_candiAccepter := service.UserService.Select(0, func(i interface{}) bool {
 		_user := i.(models.User)
 		_thisUserID, _ := strconv.Atoi(_cookieMap[AUTHKEY])
-		return _user.UserID != uint32(_thisUserID)
+		return _user.UserID != _thisUserID
 	})
 
 	_orderInfo := [...]interface{}{_userName, _mealInfo, _candiAccepter, ACCEPTERID}
@@ -55,7 +67,7 @@ func orderPreviewHandler(c *gin.Context) {
 	setCookies(c, map[string]string{
 		REQUESTERNAME: _userName,
 		MEALNAME:      _mealInfo.Name,
-		REQUESTERID:   strconv.Itoa(int(_userID)),
+		REQUESTERID:   strconv.Itoa(_userID),
 		ORDERMEALID:   c.Params.ByName(MEALKEY),
 		MEALPRICE:     fmt.Sprintf("%.1f", _mealInfo.Price),
 	})
@@ -100,14 +112,18 @@ func orderApplyHandler(c *gin.Context) {
 		AcceptorName:    _acceptInfo[1],
 		OrderedMealName: _cookieMap[MEALNAME],
 		Price:           _price,
-		RequesterId:     uint32(_requestID),
-		AcceptorId:      uint32(_selectID),
-		OrderedMealId:   uint32(_orderMealID),
+		RequesterId:     _requestID,
+		AcceptorId:      _selectID,
+		OrderedMealId:   _orderMealID,
 		IsReadyDelete:   false,
 	}
 
-	fmt.Println(_orderPending)
-	service.PendingOrderService.Update(_orderUid, _orderPending)
+	log.Println("Apply Order INFO: ", _orderPending)
+	_, err := service.PendingOrderService.Update(_orderUid, _orderPending)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 
 	_t.Execute(c.Writer, _orderInfo)
 }
