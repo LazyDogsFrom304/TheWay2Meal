@@ -39,8 +39,7 @@ func getAccounts(authPath string) gin.Accounts {
 		}
 		_accPairDict := strings.Split(string(_accPair), " ")
 		if len(_accPairDict) != 2 {
-			err = fmt.Errorf("format error meets when loading auths")
-			return nil
+			log.Panic("format error meets when loading auths")
 		}
 		_accounts[_accPairDict[0]] = _accPairDict[1]
 	}
@@ -125,6 +124,7 @@ func userPostRedirect(c *gin.Context) {
 	}
 
 	c.Redirect(http.StatusMovedPermanently, _userid.(string))
+
 }
 
 func userActionsHandler(c *gin.Context) {
@@ -139,6 +139,7 @@ func userActionsHandler(c *gin.Context) {
 
 	_userID := restoreCookies(c, []string{AUTHKEY})[AUTHKEY]
 
+	// TODO: switch?
 	if _orderid := c.PostForm("cancelorderid"); _orderid != "" {
 		log.Println("Action Name: Cancel")
 
@@ -167,12 +168,7 @@ func userActionsHandler(c *gin.Context) {
 			return
 		}
 
-		_olderOrder, ok := _oldOrderInfo.(models.Order)
-		if !ok {
-			err = fmt.Errorf("can't convert userInfo to model.User")
-			return
-		}
-
+		_olderOrder := _oldOrderInfo.(models.Order)
 		// TODO: recover from a middle way operation
 		_, err = service.UserService.Update(_olderOrder.AcceptorId, _olderOrder.Price)
 		if err != nil {

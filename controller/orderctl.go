@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"net/http"
 	"strconv"
 	"strings"
 	"theway2meal/models"
@@ -126,4 +127,21 @@ func orderApplyHandler(c *gin.Context) {
 	}
 
 	_t.Execute(c.Writer, _orderInfo)
+}
+
+func checkOrderStatus(c *gin.Context) {
+	_id, e := strconv.Atoi(c.Param("id"))
+	if e != nil {
+		log.Println(e)
+		return
+	}
+	_order, e := service.PendingOrderService.GetPendingOrder(_id)
+	if e != nil {
+		log.Println(e)
+		return
+	}
+
+	ans := strconv.FormatBool(_order.IsReadyDelete)
+	c.String(http.StatusOK, ans)
+
 }

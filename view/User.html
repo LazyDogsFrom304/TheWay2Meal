@@ -19,24 +19,71 @@ Balance:{{.Balance}}</br>
     <a href="/menu/{{.OrderedMealId}}">{{.OrderedMealName}}</a>
     /{{.Price}}, 时间：{{.OrderTime}}。
     <form action="/user/{{.RequesterId}}" method="post" style="display:inline">
-      <button name="cancelorderid" type="submit" value={{.OrderID}}>Cancel</button>
+      <button name="cancelorderid" type="submit" value={{.OrderID}} 
+      {{if .IsReadyDelete}} 
+      disabled
+      {{end}}>
+      {{if .IsReadyDelete}} 
+      等待确认
+      {{else}}
+      取消
+      {{end}}
+    </button>
     </form></br>
   {{end}}
 
+  <script>
+    function AsyncStatus(id) 
+    {　
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function(){
+          if(xmlHttp.readyState===4 && xmlHttp.status==200){
+            var respText=xmlHttp.responseText;
+            console.log(respText)
+            if (respText == "true"){
+              document.getElementById("donebottom"+id).disabled=true;
+              document.getElementById("confirmbottom"+id).disabled=false;
+            }
+          }
+        }
+
+        xmlHttp.open("get", "/orderstatus/"+id)
+        xmlHttp.send()
+        setTimeout("AsyncStatus("+id+")", 1000)
+    }
+    </script>
 <h2>Order Accepting</h2>
 
   {{range $req := index . 2}}
   No.{{.OrderID}}  {{.RequesterName}} 请  {{.AcceptorName}} 带了
   <a href="/menu/{{.OrderedMealId}}">{{.OrderedMealName}}</a>
   /{{.Price}}, 时间：{{.OrderTime}}。
+  IsReadyDelete {{.IsReadyDelete}}
     <form action="/user/{{.AcceptorId}}" method="post" style="display:inline">
-      <button name="finishorderid" type="submit" value={{.OrderID}}>Done</button>
+      <button name="finishorderid" type="submit" id=donebottom{{.OrderID}} value={{.OrderID}}
+      {{if .IsReadyDelete}} 
+      disabled
+      {{end}}>
+      已完成
+    </button>
     </form>
     <form action="/user/{{.AcceptorId}}" method="post" style="display:inline">
-      <button name="confirmcancel" type="submit" value={{.OrderID}}>Cancel</button>
+      <button name="confirmcancel" type="submit" id=confirmbottom{{.OrderID}} value={{.OrderID}}
+      {{if not .IsReadyDelete}} 
+      disabled
+      {{end}}
+      >
+      确认取消
+    </button>
     </form>
+    <script>
+      AsyncStatus("{{.OrderID}}")
+    </script>
   </br>
+
   {{end}}
+
+
 
   <h2>Order Done</h2>
 
