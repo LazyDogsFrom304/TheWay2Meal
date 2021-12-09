@@ -4,7 +4,6 @@ package service
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 	"theway2meal/models"
@@ -39,73 +38,66 @@ func constructDB() DataBase {
 // simpleSQL formats like:
 // `meals:id`
 // return obj implements Detachable
-func (db DataBase) Get(simpleSQL string) (interface{}, bool) {
-	tableName, id, ok := analysisSQL(simpleSQL)
-	if !ok {
-		return nil, ok
+func (db DataBase) Get(simpleSQL string) (obj interface{}, err error) {
+	tableName, id, err := analysisSQL(simpleSQL)
+	if err != nil {
+		return
 	}
 	table, ok := db[tableName]
 	if !ok {
-		log.Printf("tableName %s is not found\n", tableName)
-		return nil, ok
+		err = fmt.Errorf("dbGET: tableName %s is not found", tableName)
+		return
 	}
-	obj, ok := table[id]
-	if !ok && obj != nil {
-		log.Printf("index %d is not found\n", id)
-		return nil, ok
-	}
-	return obj, ok
+	obj = table[id]
+	return
 }
 
 // simpleSQL formats like:
 // `"users:id", obj`
 // pass by value
-func (db DataBase) Set(simpleSQL string, obj interface{}) (interface{}, bool) {
-	tableName, id, ok := analysisSQL(simpleSQL)
-	if !ok {
-		return nil, ok
+func (db DataBase) Set(simpleSQL string, obj interface{}) (old interface{}, err error) {
+
+	tableName, id, err := analysisSQL(simpleSQL)
+	if err != nil {
+		return
 	}
-	old, ok := db[tableName][id]
-	if !ok {
-		old = nil
-	}
+	old = db[tableName][id]
 
 	if obj != nil {
 		db[tableName][id] = obj
 	} else {
 		delete(db[tableName], id)
 	}
-	return old, true
+	return
 }
 
-func analysisSQL(simpleSQL string) (string, int, bool) {
+func analysisSQL(simpleSQL string) (string, int, error) {
 	keymap := strings.Split(simpleSQL, ":")
 	tableName := keymap[0]
 	id, ok := strconv.Atoi(keymap[1])
 	if ok != nil {
-		log.Printf("Error occurs when analysising %s\n, %s", simpleSQL, ok)
-		return "", 0, false
+		return "", 0, fmt.Errorf("error occurs when analysising %s\n, %s", simpleSQL, ok)
 	}
 
-	return tableName, id, true
+	return tableName, id, nil
 }
 
 // Test only
 func DB_loadTestingData(db DataBase, u, o, m bool) {
 	if u {
 		for _, user := range models.Users {
-			db.Set("users:"+fmt.Sprint(user.UserID), *user)
+			db.Set("users:"+strconv.Itoa(user.UserID), user)
 		}
 	}
 
 	if o {
 		index := 0
 		for _, order := range models.Orders[:1] {
-			db.Set("ordersDone:"+fmt.Sprint(order.OrderID), *order)
+			db.Set("ordersDone:"+strconv.Itoa(order.OrderID), order)
 			index++
 		}
 		for _, order := range models.Orders[1:] {
-			db.Set("ordersPending:"+fmt.Sprint(order.OrderID), *order)
+			db.Set("ordersPending:"+strconv.Itoa(order.OrderID), order)
 			index++
 		}
 		PendingOrderService.indexNext = index
@@ -113,7 +105,7 @@ func DB_loadTestingData(db DataBase, u, o, m bool) {
 
 	if m {
 		for _, meal := range models.Meals {
-			db.Set("meals:"+fmt.Sprint(meal.Id), *meal)
+			db.Set("meals:"+strconv.Itoa(meal.Id), meal)
 		}
 	}
 

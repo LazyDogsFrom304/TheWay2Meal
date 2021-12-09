@@ -5,7 +5,7 @@ import (
 )
 
 type User struct {
-	UserID  uint32  `json:"userid" structs:"userid"`
+	UserID  int     `json:"userid" structs:"userid"`
 	Name    string  `json:"name" structs:"name"`
 	Balance float64 `json:"balance" structs:"balance"`
 }

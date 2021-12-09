@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -16,9 +17,15 @@ import (
 )
 
 func getAccounts(authPath string) gin.Accounts {
-	_f, e := os.Open(authPath)
-	if e != nil {
-		fmt.Printf("Fail to find authFile %s\n", authPath)
+	var err error
+	defer func() {
+		if err != nil && err != io.EOF {
+			log.Println(err.Error())
+		}
+	}()
+
+	_f, err := os.Open(authPath)
+	if err != nil {
 		return nil
 	}
 	defer _f.Close()
@@ -26,13 +33,13 @@ func getAccounts(authPath string) gin.Accounts {
 	_br := bufio.NewReader(_f)
 	_accounts := make(gin.Accounts, 3)
 	for {
-		_accPair, _, e := _br.ReadLine()
-		if e == io.EOF {
+		_accPair, _, err := _br.ReadLine()
+		if err == io.EOF {
 			break
 		}
 		_accPairDict := strings.Split(string(_accPair), " ")
 		if len(_accPairDict) != 2 {
-			fmt.Printf("Format error meets when loading auths.\n")
+			err = fmt.Errorf("format error meets when loading auths")
 			return nil
 		}
 		_accounts[_accPairDict[0]] = _accPairDict[1]
@@ -41,12 +48,26 @@ func getAccounts(authPath string) gin.Accounts {
 }
 
 func userPremissionInterceotor(c *gin.Context) {
-	_userID, _ := strconv.Atoi(c.Params.ByName("userid"))
+	var err error
+	defer func() {
+		if err != nil {
+			log.Println(err.Error())
+		}
+	}()
+
+	_userID, err := strconv.Atoi(c.Params.ByName("userid"))
+	if err != nil {
+		return
+	}
+
 	_userName := c.MustGet(gin.AuthUserKey).(string)
-	_userVisited := service.UserService.GetUser(uint32(_userID))
+	_userVisited, err := service.UserService.GetUser(_userID)
+	if err != nil {
+		return
+	}
 
 	if _userVisited.Name != _userName {
-		fmt.Printf("User %d has no permission visit %s's page.\n", _userID, _userName)
+		err = fmt.Errorf("user %s/id:%d has no permission visit %s's page", _userVisited.Name, _userID, _userName)
 		return
 	}
 	c.Set("userInfo", _userVisited)
@@ -54,14 +75,27 @@ func userPremissionInterceotor(c *gin.Context) {
 }
 
 func userHandler(c *gin.Context) {
+	var err error
+	defer func() {
+		if err != nil {
+			log.Println(err.Error())
+		}
+	}()
+
 	_t := template.Must(template.ParseFiles(HTMLPath + "User.html"))
 
 	_userInfo, ok := c.Get("userInfo")
 	if !ok {
-		fmt.Println("Cann't extract userInfo from context.")
+		err = fmt.Errorf("can't extract userInfo from context")
 		return
 	}
-	_user := _userInfo.(*models.User)
+
+	_user, ok := _userInfo.(models.User)
+	if !ok {
+		err = fmt.Errorf("can't convert userInfo to model.User")
+		return
+	}
+
 	_requestOrders := service.PendingOrderService.Select(10, func(i interface{}) bool {
 		_order := i.(models.Order)
 		return _user.UserID == _order.RequesterId
@@ -77,8 +111,6 @@ func userHandler(c *gin.Context) {
 		return _user.UserID == _order.RequesterId || _user.UserID == _order.AcceptorId
 	})
 
-	fmt.Println(_requestOrders...)
-
 	_orderInfo := [...]interface{}{_userInfo, _requestOrders, _acceptOrders, _doneOrders}
 
 	_t.Execute(c.Writer, _orderInfo)
@@ -86,43 +118,94 @@ func userHandler(c *gin.Context) {
 }
 
 func userPostRedirect(c *gin.Context) {
-	_userid, _ := c.Get("userid")
+	_userid, ok := c.Get("userid")
+	if !ok {
+		log.Println(fmt.Errorf("can't extract userid from gin context"))
+		return
+	}
 
 	c.Redirect(http.StatusMovedPermanently, _userid.(string))
 }
 
 func userActionsHandler(c *gin.Context) {
-	fmt.Println("Action Handler!")
-	fmt.Println(c.PostForm("cancelorderid"))
+	var err error
+	defer func() {
+		if err != nil {
+			log.Println(err.Error())
+		}
+	}()
+
+	log.Println("User Action Handler!")
 
 	_userID := restoreCookies(c, []string{AUTHKEY})[AUTHKEY]
 
 	if _orderid := c.PostForm("cancelorderid"); _orderid != "" {
-		fmt.Println("cancel!")
+		log.Println("Action Name: Cancel")
 
-		_orderid, _ := strconv.Atoi(_orderid)
-		_olderOrder := service.PendingOrderService.GetPendingOrder(uint32(_orderid))
+		_orderid, err := strconv.Atoi(_orderid)
+		if err != nil {
+			return
+		}
+
+		_olderOrder, err := service.PendingOrderService.GetPendingOrder(_orderid)
+		if err != nil {
+			return
+		}
+
 		_olderOrder.IsReadyDelete = true
-		service.PendingOrderService.Update(uint32(_orderid), _olderOrder.Detach())
+		service.PendingOrderService.Update(_orderid, _olderOrder)
 	} else if _orderid := c.PostForm("finishorderid"); _orderid != "" {
-		fmt.Println("Done!")
+		log.Println("Action Name: Done!")
 
-		_orderid, _ := strconv.Atoi(_orderid)
-		_oldOrderInfo, ok := service.PendingOrderService.Update(uint32(_orderid), nil)
-		if ok == nil {
-			_olderOrder := _oldOrderInfo.(models.Order)
+		_orderid, err := strconv.Atoi(_orderid)
+		if err != nil {
+			return
+		}
 
-			service.UserService.Update(_olderOrder.AcceptorId, _olderOrder.Price)
-			service.UserService.Update(_olderOrder.RequesterId, -_olderOrder.Price)
-			service.DoneOrderService.Update(uint32(_orderid), _olderOrder)
+		_oldOrderInfo, err := service.PendingOrderService.Update(_orderid, nil)
+		if err != nil {
+			return
+		}
+
+		_olderOrder, ok := _oldOrderInfo.(models.Order)
+		if !ok {
+			err = fmt.Errorf("can't convert userInfo to model.User")
+			return
+		}
+
+		// TODO: recover from a middle way operation
+		_, err = service.UserService.Update(_olderOrder.AcceptorId, _olderOrder.Price)
+		if err != nil {
+			return
+		}
+
+		_, err = service.UserService.Update(_olderOrder.RequesterId, -_olderOrder.Price)
+		if err != nil {
+			return
+		}
+
+		_, err = service.DoneOrderService.Update(_orderid, _olderOrder)
+		if err != nil {
+			return
 		}
 	} else if _orderid := c.PostForm("confirmcancel"); _orderid != "" {
-		fmt.Println("confirm cancel")
+		log.Println("Action Name: Confirm Canceling")
 
-		_orderid, _ := strconv.Atoi(_orderid)
-		_olderOrder := service.PendingOrderService.GetPendingOrder(uint32(_orderid))
+		_orderid, err := strconv.Atoi(_orderid)
+		if err != nil {
+			return
+		}
+
+		_olderOrder, err := service.PendingOrderService.GetPendingOrder(_orderid)
+		if err != nil {
+			return
+		}
+
 		if _olderOrder.IsReadyDelete {
-			service.PendingOrderService.Update(uint32(_orderid), nil)
+			_, err = service.PendingOrderService.Update(_orderid, nil)
+			if err != nil {
+				return
+			}
 		}
 	}
 

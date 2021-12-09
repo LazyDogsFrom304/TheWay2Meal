@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"sync"
 	"theway2meal/models"
 )
@@ -23,33 +24,39 @@ var PendingOrderService = &pendingOrderService{
 // A filter actually
 // obj:nil changes:[models.Order]
 // obj:Order changes:[nil]
-func processPendings(obj interface{}, changes ...interface{}) interface{} {
+func processPendings(obj interface{}, changes ...interface{}) (target interface{}, err error) {
 	if len(changes) > 1 {
-		panic("index out of the range of changes")
+		err = fmt.Errorf("index out of the range of changes, expect 0 or 1, get %d", len(changes))
+		return
 	}
 
 	if obj != nil && changes[0] == nil {
-		return nil
-	} else {
-		return changes[0]
+		return
 	}
 
+	target = changes[0]
+	return
 }
 
-func (srv *pendingOrderService) GetPendingOrder(orderId uint32) *models.Order {
-	obj := srv.internalGet(orderId)
-	targetOrder, ok := obj.(models.Order)
+func (srv *pendingOrderService) GetPendingOrder(orderId int) (order models.Order, err error) {
+	obj, err := srv.internalGet(orderId)
+	if err != nil {
+		order = models.Order{}
+		return
+	}
+
+	order, ok := obj.(models.Order)
 	if !ok {
-		return nil
+		err = fmt.Errorf("can't construct %v as models.Order", order)
 	}
-	return &targetOrder
+	return
 }
 
-func (srv *pendingOrderService) GenerateUID() uint32 {
+func (srv *pendingOrderService) GenerateUID() int {
 	srv.rwmutex.Lock()
 	defer srv.rwmutex.Unlock()
 
 	uid := srv.indexNext
 	srv.indexNext += 1
-	return uint32(uid)
+	return uid
 }

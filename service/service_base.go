@@ -1,25 +1,12 @@
 package service
 
 import (
-	"errors"
 	"fmt"
+	"strconv"
 	"sync"
 )
 
-type capError struct {
-	e   error
-	msg string
-}
-
 const cacheCap = 10
-
-func constructError(errorPos, info string) capError {
-	return capError{errors.New(errorPos), info}
-}
-
-func (ce capError) Error() string {
-	return ce.e.Error() + " " + ce.msg
-}
 
 type service struct {
 	rwmutex   *sync.RWMutex
@@ -28,36 +15,38 @@ type service struct {
 
 	// As a constraint, users need to implement
 	// Service's own handle function.
-	handleBeforeUpdate func(interface{}, ...interface{}) interface{}
+	handleBeforeUpdate func(interface{}, ...interface{}) (interface{}, error)
 }
 
-func (srv *service) internalGet(id uint32) interface{} {
+func (srv *service) internalGet(id int) (obj interface{}, err error) {
 	srv.rwmutex.RLock()
 	defer srv.rwmutex.RUnlock()
 
 	_db := GetDefaultDB()
-	obj, ok := _db.Get(srv.tableName + ":" + fmt.Sprint(id))
-	if !ok {
-		return nil
-	}
-	return obj
+	obj, err = _db.Get(srv.tableName + ":" + strconv.Itoa(id))
+	return
 }
 
-func (srv *service) Update(id uint32, changes ...interface{}) (interface{}, error) {
+func (srv *service) Update(id int, changes ...interface{}) (old interface{}, err error) {
 	srv.rwmutex.Lock()
 	defer srv.rwmutex.Unlock()
 
 	_db := GetDefaultDB()
-	obj, _ := _db.Get(srv.tableName + ":" + fmt.Sprint(id))
-
-	obj = srv.handleBeforeUpdate(obj, changes...)
-
-	old, ok := _db.Set(srv.tableName+":"+fmt.Sprint(id), obj)
-	if !ok {
-		return nil, constructError(srv.tableName,
-			fmt.Sprintf("can't apply modification business id %d", id))
+	obj, err := _db.Get(srv.tableName + ":" + strconv.Itoa(id))
+	if err != nil {
+		return
 	}
-	return old, nil
+
+	obj, err = srv.handleBeforeUpdate(obj, changes...)
+	if err != nil {
+		return
+	}
+
+	old, err = _db.Set(srv.tableName+":"+strconv.Itoa(id), obj)
+	if err != nil {
+		err = fmt.Errorf("can't apply modification business id %d, due to %s", id, err.Error())
+	}
+	return
 }
 
 func (srv *service) Select(maxLen int, filter func(interface{}) bool) []interface{} {
