@@ -73,8 +73,29 @@ func userPremissionInterceotor(c *gin.Context) {
 }
 
 func userHandler(c *gin.Context) {
+	var err error
+	defer func() {
+		if err != nil {
+			log.Println(err.Error())
+		}
+	}()
 
-	c.HTML(http.StatusOK, "User.html", gin.H{})
+	_userInfo, ok := c.Get("userInfo")
+
+	if !ok {
+		err = fmt.Errorf("can't extract userInfo from context")
+	}
+
+	_user, ok := _userInfo.(models.User)
+
+	if !ok {
+		err = fmt.Errorf("can't convert userInfo to model.User")
+		return
+	}
+
+	c.HTML(http.StatusOK, "User.html", gin.H{
+		"userid": _user.UserID,
+	})
 
 }
 
@@ -192,6 +213,4 @@ func userActionsHandler(c *gin.Context) {
 			}
 		}
 	}
-
-	c.Next()
 }

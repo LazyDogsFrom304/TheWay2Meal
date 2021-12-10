@@ -1,204 +1,189 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<meta charset="utf-8">
+  <meta charset="utf-8">
+  <style>
+    table,
+    th,
+    td {
+      border: 1px solid black;
+      text-align: center;
+    }
+  </style>
 </head>
+
 <body>
 
-<h1 style="text-align:center;">User</h1>
-<a href="/menu">跳转菜单</a></br>
-{{with index . 0}}
-User:<a href="/user/{{.UserID}}">{{.Name}}</a></br>
-Balance:{{.Balance}}</br>
-{{end}}
+  <script>
 
-<h2>Order Requested</h2>
-<script>
-  // Json example:
-//   [
-//     {
-//         "userid": 2,
-//         "name": "zcm",
-//         "balance": 0
-//     },
-//     [],
-//     [
-//         {
-//             "orderid": 2,
-//             "ordertime": "2021-12-10 16:42:01",
-//             "requestername": "gs",
-//             "acceptorname": "zcm",
-//             "mealname": "鸡腿饭",
-//             "price": 11.3,
-//             "requesterId": 0,
-//             "acceptorId": 2,
-//             "mealId": 1,
-//             "isdone": false
-//         },
-//         {
-//             "orderid": 1,
-//             "ordertime": "2021-12-10 16:42:01",
-//             "requestername": "jzh",
-//             "acceptorname": "zcm",
-//             "mealname": "鸡腿饭",
-//             "price": 11.3,
-//             "requesterId": 1,
-//             "acceptorId": 2,
-//             "mealId": 1,
-//             "isdone": false
-//         }
-//     ],
-//     []
-// ]
-  function Addrow(id)
-  {
-    //
-  }
+    // Actions clicked request cancel buttom
+    function onBottonPost(target, formdata) {
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", target, true);
 
-  function constructRequestTable() 
-  {　
+      xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+      xhr.onload = function () {
+        refreshPage()
+      };
+      xhr.send(formdata);
+
+    }
+
+    function refreshPage() {
       var xmlHttp = new XMLHttpRequest();
-      xmlHttp.onreadystatechange = function(){
-        if(xmlHttp.readyState===4 && xmlHttp.status==200){
-          var respText=xmlHttp.responseText;
-          var infos = JSON.parse(responseText);
-          if (respText == "true"){
-            var requestTable=document.getElementById("TableRequest")
+      xmlHttp.onreadystatechange = function () {
+        if (xmlHttp.readyState === 4 && xmlHttp.status == 200) {
+          var respText = xmlHttp.responseText;
+          var infos = JSON.parse(respText);
+          console.log(infos[2])
 
-            document.getElementById("donebottom"+id).disabled=true;
-            document.getElementById("confirmbottom"+id).disabled=false;
-          }else{
-            setTimeout("constructRequestTable()", 1000)
+          var userTitle = document.getElementById("username");
+          userTitle.innerText = infos[0].name;
+
+          var balance = document.getElementById("balance");
+          balance.innerText = infos[0].balance;
+
+          var requestTable = document.getElementById("TableRequest");
+          requestTable.innerHTML = ""
+
+          for (var i = 0; i < infos[1].length; i++) {
+            var info_i = infos[1][i];
+            var disabled = info_i.isreadydelete ? 'disabled' : '';
+            var buttonText = info_i.isreadydelete ? '等待确认' : '取消';
+
+            var reqAppend = '<tr>' +
+              '<td>No.' + info_i.orderid + '</td>' +
+              '<td>' + info_i.requestername + '</td>' +
+              '<td>' + info_i.acceptorname + '</td>' +
+              '<td><a href="/menu/' + info_i.mealId + '">' + info_i.mealname + '</a></td>' +
+              '<td>' + info_i.price + '</td>' +
+              '<td>' + info_i.ordertime + '</td>' +
+              '<td>' +
+              '<button ' + disabled + ' onclick="onBottonPost(\'/user/' + info_i.requesterId +
+              '\', \'cancelorderid=' + info_i.orderid + '\')">' + buttonText + '</button>' +
+              '</td>' +
+              '</tr>';
+            requestTable.innerHTML += reqAppend;
+          }
+
+          var acceptTable = document.getElementById("TableAccept");
+          acceptTable.innerHTML = ""
+
+          for (var i = 0; i < infos[2].length; i++) {
+            var info_i = infos[2][i];
+            var finishDisabled = info_i.isreadydelete ? 'disabled' : '';
+            var confirmDisabled = !info_i.isreadydelete ? 'disabled' : '';
+
+            var reqAppend = '<tr>' +
+              '<td>No.' + info_i.orderid + '</td>' +
+              '<td>' + info_i.requestername + '</td>' +
+              '<td>' + info_i.acceptorname + '</td>' +
+              '<td><a href="/menu/' + info_i.mealId + '">' + info_i.mealname + '</a></td>' +
+              '<td>' + info_i.price + '</td>' +
+              '<td>' + info_i.ordertime + '</td>' +
+              '<td>' +
+              '<button ' + finishDisabled + ' onclick="onBottonPost(\'/user/' + info_i.requesterId +
+              '\', \'finishorderid=' + info_i.orderid + '\')">已完成</button>' +
+              '</td>' +
+              '<td>' +
+              '<button ' + confirmDisabled + ' onclick="onBottonPost(\'/user/' + info_i.requesterId +
+              '\', \'confirmcancel=' + info_i.orderid + '\')">确认取消</button>' +
+              '</td>' +
+              '</tr>';
+            acceptTable.innerHTML += reqAppend;
+          }
+
+
+          var doneTable = document.getElementById("TableDone");
+          doneTable.innerHTML = ""
+
+          for (var i = 0; i < infos[3].length; i++) {
+            var info_i = infos[3][i];
+
+            var reqAppend = '<tr>' +
+              '<td>No.' + info_i.orderid + '</td>' +
+              '<td>' + info_i.requestername + '</td>' +
+              '<td>' + info_i.acceptorname + '</td>' +
+              '<td><a href="/menu/' + info_i.mealId + '">' + info_i.mealname + '</a></td>' +
+              '<td>' + info_i.price + '</td>' +
+              '<td>' + info_i.ordertime + '</td>' +
+              '</tr>';
+            doneTable.innerHTML += reqAppend;
           }
         }
+        // setTimeout("refreshPage()", 1000)
       }
 
-      xmlHttp.open("get", "/user/"+id+"/sync")
+      xmlHttp.open("get", "/user/" + {{ .userid }} + "/sync")
       xmlHttp.send()
-  }
-</script>
-<table id="TableRequest">
-  <thead>
-    <tr>
-      <th>Order ID</th>
-      <th>发起人</th>
-      <th>接收人</th>
-      <th>菜名</th>
-      <th>价格</th>
-      <th>时间</th>
-      <th>    </th>
-    </tr>
-  </thead>
-  <tbody>
-    {{range $req := index . 1}}
-    <tr>
-        <td>No.{{.OrderID}}</td>
-        <td>{{.RequesterName}}</td>
-        <td>{{.AcceptorName}}</td>
-        <td><a href="/menu/{{.OrderedMealId}}">{{.OrderedMealName}}</a></td>
-        <td>{{.Price}}</td>
-        <td>{{.OrderTime}}</td>
-        <td>
-          <form action="/user/{{.RequesterId}}" method="post" style="display:inline">
-            <button name="cancelorderid" type="submit" value={{.OrderID}} 
-            {{if .IsReadyDelete}} 
-            disabled
-            {{end}}>
-            {{if .IsReadyDelete}} 
-            等待确认
-            {{else}}
-            取消
-            {{end}}
-          </button>
-          </form>
-        </td>
-    </tr>
-    {{end}}
-  </tbody>
-</table>
 
-
-
-<h2>Order Accepting</h2>
-  <script>
-    function AsyncStatus(id) 
-    {　
-        var xmlHttp = new XMLHttpRequest();
-        xmlHttp.onreadystatechange = function(){
-          if(xmlHttp.readyState===4 && xmlHttp.status==200){
-            var respText=xmlHttp.responseText;
-            console.log(respText)
-            if (respText == "true"){
-              document.getElementById("donebottom"+id).disabled=true;
-              document.getElementById("confirmbottom"+id).disabled=false;
-            }else{
-              setTimeout("AsyncStatus("+id+")", 1000)
-            }
-          }
-        }
-
-        xmlHttp.open("get", "/orderstatus/readycancel/"+id)
-        xmlHttp.send()
     }
+
+    refreshPage()
+    setInterval("refreshPage()", 1000)
   </script>
 
-<table>
-  <thead>
-    <tr>
-      <th>Order ID</th>
-      <th>发起人</th>
-      <th>接收人</th>
-      <th>菜名</th>
-      <th>价格</th>
-      <th>时间</th>
-      <th>    </th>
-    </tr>
-  </thead>
-  <tbody>
-    {{range $req := index . 2}}
-    <tr>
-        <td>No.{{.OrderID}}</td>
-        <td>{{.RequesterName}}</td>
-        <td>{{.AcceptorName}}</td>
-        <td><a href="/menu/{{.OrderedMealId}}">{{.OrderedMealName}}</a></td>
-        <td>{{.Price}}</td>
-        <td>{{.OrderTime}}</td>
-        <td>
-          <form action="/user/{{.AcceptorId}}" method="post" style="display:inline">
-            <button name="finishorderid" type="submit" id=donebottom{{.OrderID}} value={{.OrderID}}
-            {{if .IsReadyDelete}} 
-            disabled
-            {{end}}>
-            已完成
-          </button>
-          </form>
-        </td>
-        <td>
-          <form action="/user/{{.AcceptorId}}" method="post" style="display:inline">
-            <button name="confirmcancel" type="submit" id=confirmbottom{{.OrderID}} value={{.OrderID}}
-            {{if not .IsReadyDelete}} 
-            disabled
-            {{end}}
-            >
-            确认取消
-          </button>
-          </form>
-        </td>
-    </tr>
-    <script>
-      AsyncStatus("{{.OrderID}}")
-    </script>
-    {{end}}
-  </tbody>
-</table>
+  <h1 style="text-align:center;">User</h1>
+  <a href="/menu">跳转菜单</a></br>
+  User:<a id="username"></a></br>
+  Balance:<a id="balance"></a></br>
+
+  <h2>Order Requested</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>发起人</th>
+        <th>接收人</th>
+        <th>菜名</th>
+        <th>价格</th>
+        <th>时间</th>
+        <th> </th>
+      </tr>
+    </thead>
+    <tbody id="TableRequest">
+    </tbody>
+  </table>
+
+  <h2>Order Accepting</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>发起人</th>
+        <th>接收人</th>
+        <th>菜名</th>
+        <th>价格</th>
+        <th>时间</th>
+        <th> </th>
+        <th> </th>
+      </tr>
+    </thead>
+    <tbody id="TableAccept">
+    </tbody>
+  </table>
 
   <h2>Order Done</h2>
 
-  {{range $req := index . 3}}
-  No.{{.OrderID}}  {{.RequesterName}} 请  {{.AcceptorName}} 带了
-  <a href="/menu/{{.OrderedMealId}}">{{.OrderedMealName}}</a>
-  /{{.Price}}, 时间：{{.OrderTime}}。</br>
-  {{end}}
+  <table>
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>发起人</th>
+        <th>接收人</th>
+        <th>菜名</th>
+        <th>价格</th>
+        <th>时间</th>
+      </tr>
+    </thead>
+    <tbody id="TableDone">
+    </tbody>
+  </table>
 
 </body>
+
 </html>

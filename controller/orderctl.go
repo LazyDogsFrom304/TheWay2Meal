@@ -77,7 +77,6 @@ func orderPreviewHandler(c *gin.Context) {
 }
 
 func orderApplyHandler(c *gin.Context) {
-	_t := template.Must(template.ParseFiles(HTMLPath + "Order_Pending.html"))
 
 	_acceptInfo := strings.Split(c.PostForm(ACCEPTERID), ":")
 
@@ -90,14 +89,6 @@ func orderApplyHandler(c *gin.Context) {
 		ORDERMEALID,
 		MEALPRICE,
 	})
-
-	_orderInfo := [...]interface{}{
-		_cookieMap[REQUESTERNAME],
-		_cookieMap[MEALNAME],
-		_cookieMap[MEALPRICE],
-		_acceptInfo[1],
-		_cookieMap[REQUESTERID],
-	}
 
 	// Append Waiting order
 	_selectID, _ := strconv.Atoi(_acceptInfo[0])
@@ -126,40 +117,5 @@ func orderApplyHandler(c *gin.Context) {
 		return
 	}
 
-	_t.Execute(c.Writer, _orderInfo)
-}
-
-func checkOrderStatus(c *gin.Context) {
-	_id, e := strconv.Atoi(c.Param("id"))
-	if e != nil {
-		log.Println(e)
-		return
-	}
-	_order, e := service.PendingOrderService.GetPendingOrder(_id)
-	if e != nil {
-		log.Println(e)
-		return
-	}
-
-	ans := strconv.FormatBool(_order.IsReadyDelete)
-	c.String(http.StatusOK, ans)
-
-}
-
-func checkOrderCancelConfirm(c *gin.Context) {
-	_id, e := strconv.Atoi(c.Param("id"))
-	if e != nil {
-		log.Println(e)
-		return
-	}
-	_, e = service.PendingOrderService.GetPendingOrder(_id)
-	if e == nil {
-		c.String(http.StatusOK, "false")
-		return
-	}
-
-	_, e = service.DoneOrderService.GetDoneOrder(_id)
-	if e != nil {
-		c.String(http.StatusOK, "true")
-	}
+	c.Redirect(http.StatusMovedPermanently, "/user/"+_cookieMap[REQUESTERID])
 }
