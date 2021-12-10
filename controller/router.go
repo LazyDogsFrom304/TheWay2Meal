@@ -12,7 +12,9 @@ func MapRoutes() *gin.Engine {
 	customers.GET("/menu", menuHandler)
 	customers.GET("/menu/:"+MEALKEY, orderPreviewHandler)
 	customers.POST("/order", orderApplyHandler)
-	customers.GET("/orderstatus/:id", checkOrderStatus)
+
+	customers.GET("/orderstatus/readycancel/:id", checkOrderStatus)
+	customers.GET("/orderstatus/confirmcancel/:id", checkOrderCancelConfirm)
 
 	users := customers.Group("user", userPremissionInterceotor)
 	users.GET(":userid", userHandler)

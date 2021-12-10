@@ -145,3 +145,21 @@ func checkOrderStatus(c *gin.Context) {
 	c.String(http.StatusOK, ans)
 
 }
+
+func checkOrderCancelConfirm(c *gin.Context) {
+	_id, e := strconv.Atoi(c.Param("id"))
+	if e != nil {
+		log.Println(e)
+		return
+	}
+	_, e = service.PendingOrderService.GetPendingOrder(_id)
+	if e == nil {
+		c.String(http.StatusOK, "false")
+		return
+	}
+
+	_, e = service.DoneOrderService.GetDoneOrder(_id)
+	if e != nil {
+		c.String(http.StatusOK, "true")
+	}
+}

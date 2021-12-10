@@ -12,11 +12,36 @@ User:<a href="/user/{{.UserID}}">{{.Name}}</a></br>
 Balance:{{.Balance}}</br>
 {{end}}
 
-<table>
+<h2>Order Requested</h2>
+<script>
+  function Addrow(id)
+  {
+    //
+  }
+
+  function AsyncConfirm() 
+  {　
+      var xmlHttp = new XMLHttpRequest();
+      xmlHttp.onreadystatechange = function(){
+        if(xmlHttp.readyState===4 && xmlHttp.status==200){
+          var respText=xmlHttp.responseText;
+          console.log(respText)
+          if (respText == "true"){
+            var requestTable=document.getElementById("TableRequest")
+            document.getElementById("donebottom"+id).disabled=true;
+            document.getElementById("confirmbottom"+id).disabled=false;
+          }else{
+            setTimeout("AsyncConfirm("+id+")", 1000)
+          }
+        }
+      }
+
+      xmlHttp.open("get", "/orderstatus/confirmcancel/"+id)
+      xmlHttp.send()
+  }
+</script>
+<table id="TableRequest">
   <thead>
-    <tr>
-      <th colspan="2">Order Requested</th>
-    </tr>
     <tr>
       <th>Order ID</th>
       <th>发起人</th>
@@ -55,6 +80,9 @@ Balance:{{.Balance}}</br>
   </tbody>
 </table>
 
+
+
+<h2>Order Accepting</h2>
   <script>
     function AsyncStatus(id) 
     {　
@@ -72,42 +100,60 @@ Balance:{{.Balance}}</br>
           }
         }
 
-        xmlHttp.open("get", "/orderstatus/"+id)
+        xmlHttp.open("get", "/orderstatus/readycancel/"+id)
         xmlHttp.send()
     }
   </script>
-<h2>Order Accepting</h2>
 
-  {{range $req := index . 2}}
-  No.{{.OrderID}}  {{.RequesterName}} 请  {{.AcceptorName}} 带了
-  <a href="/menu/{{.OrderedMealId}}">{{.OrderedMealName}}</a>
-  /{{.Price}}, 时间：{{.OrderTime}}。
-  IsReadyDelete {{.IsReadyDelete}}
-    <form action="/user/{{.AcceptorId}}" method="post" style="display:inline">
-      <button name="finishorderid" type="submit" id=donebottom{{.OrderID}} value={{.OrderID}}
-      {{if .IsReadyDelete}} 
-      disabled
-      {{end}}>
-      已完成
-    </button>
-    </form>
-    <form action="/user/{{.AcceptorId}}" method="post" style="display:inline">
-      <button name="confirmcancel" type="submit" id=confirmbottom{{.OrderID}} value={{.OrderID}}
-      {{if not .IsReadyDelete}} 
-      disabled
-      {{end}}
-      >
-      确认取消
-    </button>
-    </form>
+<table>
+  <thead>
+    <tr>
+      <th>Order ID</th>
+      <th>发起人</th>
+      <th>接收人</th>
+      <th>菜名</th>
+      <th>价格</th>
+      <th>时间</th>
+      <th>    </th>
+    </tr>
+  </thead>
+  <tbody>
+    {{range $req := index . 2}}
+    <tr>
+        <td>No.{{.OrderID}}</td>
+        <td>{{.RequesterName}}</td>
+        <td>{{.AcceptorName}}</td>
+        <td><a href="/menu/{{.OrderedMealId}}">{{.OrderedMealName}}</a></td>
+        <td>{{.Price}}</td>
+        <td>{{.OrderTime}}</td>
+        <td>
+          <form action="/user/{{.AcceptorId}}" method="post" style="display:inline">
+            <button name="finishorderid" type="submit" id=donebottom{{.OrderID}} value={{.OrderID}}
+            {{if .IsReadyDelete}} 
+            disabled
+            {{end}}>
+            已完成
+          </button>
+          </form>
+        </td>
+        <td>
+          <form action="/user/{{.AcceptorId}}" method="post" style="display:inline">
+            <button name="confirmcancel" type="submit" id=confirmbottom{{.OrderID}} value={{.OrderID}}
+            {{if not .IsReadyDelete}} 
+            disabled
+            {{end}}
+            >
+            确认取消
+          </button>
+          </form>
+        </td>
+    </tr>
     <script>
       AsyncStatus("{{.OrderID}}")
     </script>
-  </br>
-
-  {{end}}
-
-
+    {{end}}
+  </tbody>
+</table>
 
   <h2>Order Done</h2>
 
