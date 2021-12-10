@@ -12,25 +12,48 @@ User:<a href="/user/{{.UserID}}">{{.Name}}</a></br>
 Balance:{{.Balance}}</br>
 {{end}}
 
-<h2>Order Requested</h2>
-
-  {{range $req := index . 1}}
-    No.{{.OrderID}}  {{.RequesterName}} 请  {{.AcceptorName}} 带了
-    <a href="/menu/{{.OrderedMealId}}">{{.OrderedMealName}}</a>
-    /{{.Price}}, 时间：{{.OrderTime}}。
-    <form action="/user/{{.RequesterId}}" method="post" style="display:inline">
-      <button name="cancelorderid" type="submit" value={{.OrderID}} 
-      {{if .IsReadyDelete}} 
-      disabled
-      {{end}}>
-      {{if .IsReadyDelete}} 
-      等待确认
-      {{else}}
-      取消
-      {{end}}
-    </button>
-    </form></br>
-  {{end}}
+<table>
+  <thead>
+    <tr>
+      <th colspan="2">Order Requested</th>
+    </tr>
+    <tr>
+      <th>Order ID</th>
+      <th>发起人</th>
+      <th>接收人</th>
+      <th>菜名</th>
+      <th>价格</th>
+      <th>时间</th>
+      <th>    </th>
+    </tr>
+  </thead>
+  <tbody>
+    {{range $req := index . 1}}
+    <tr>
+        <td>No.{{.OrderID}}</td>
+        <td>{{.RequesterName}}</td>
+        <td>{{.AcceptorName}}</td>
+        <td><a href="/menu/{{.OrderedMealId}}">{{.OrderedMealName}}</a></td>
+        <td>{{.Price}}</td>
+        <td>{{.OrderTime}}</td>
+        <td>
+          <form action="/user/{{.RequesterId}}" method="post" style="display:inline">
+            <button name="cancelorderid" type="submit" value={{.OrderID}} 
+            {{if .IsReadyDelete}} 
+            disabled
+            {{end}}>
+            {{if .IsReadyDelete}} 
+            等待确认
+            {{else}}
+            取消
+            {{end}}
+          </button>
+          </form>
+        </td>
+    </tr>
+    {{end}}
+  </tbody>
+</table>
 
   <script>
     function AsyncStatus(id) 
@@ -43,15 +66,16 @@ Balance:{{.Balance}}</br>
             if (respText == "true"){
               document.getElementById("donebottom"+id).disabled=true;
               document.getElementById("confirmbottom"+id).disabled=false;
+            }else{
+              setTimeout("AsyncStatus("+id+")", 1000)
             }
           }
         }
 
         xmlHttp.open("get", "/orderstatus/"+id)
         xmlHttp.send()
-        setTimeout("AsyncStatus("+id+")", 1000)
     }
-    </script>
+  </script>
 <h2>Order Accepting</h2>
 
   {{range $req := index . 2}}
