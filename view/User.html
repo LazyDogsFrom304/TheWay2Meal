@@ -61,7 +61,7 @@ Balance:{{.Balance}}</br>
       xmlHttp.onreadystatechange = function(){
         if(xmlHttp.readyState===4 && xmlHttp.status==200){
           var respText=xmlHttp.responseText;
-          console.log(respText)
+          var infos = JSON.parse(responseText);
           if (respText == "true"){
             var requestTable=document.getElementById("TableRequest")
 
@@ -73,7 +73,7 @@ Balance:{{.Balance}}</br>
         }
       }
 
-      xmlHttp.open("get", "/orderstatus/confirmcancel/"+id)
+      xmlHttp.open("get", "/user/"+id+"/sync")
       xmlHttp.send()
   }
 </script>
