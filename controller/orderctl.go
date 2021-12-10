@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"net/http"
 	"strconv"
 	"strings"
 	"theway2meal/models"
@@ -76,7 +77,6 @@ func orderPreviewHandler(c *gin.Context) {
 }
 
 func orderApplyHandler(c *gin.Context) {
-	_t := template.Must(template.ParseFiles(HTMLPath + "Order_Pending.html"))
 
 	_acceptInfo := strings.Split(c.PostForm(ACCEPTERID), ":")
 
@@ -89,14 +89,6 @@ func orderApplyHandler(c *gin.Context) {
 		ORDERMEALID,
 		MEALPRICE,
 	})
-
-	_orderInfo := [...]interface{}{
-		_cookieMap[REQUESTERNAME],
-		_cookieMap[MEALNAME],
-		_cookieMap[MEALPRICE],
-		_acceptInfo[1],
-		_cookieMap[REQUESTERID],
-	}
 
 	// Append Waiting order
 	_selectID, _ := strconv.Atoi(_acceptInfo[0])
@@ -125,5 +117,5 @@ func orderApplyHandler(c *gin.Context) {
 		return
 	}
 
-	_t.Execute(c.Writer, _orderInfo)
+	c.Redirect(http.StatusMovedPermanently, "/user/"+_cookieMap[REQUESTERID])
 }

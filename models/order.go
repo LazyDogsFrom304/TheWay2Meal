@@ -14,7 +14,7 @@ type Order struct {
 	RequesterId     int     `json:"requesterId" structs:"requesterId"`
 	AcceptorId      int     `json:"acceptorId" structs:"acceptorId"`
 	OrderedMealId   int     `json:"mealId" structs:"mealId"`
-	IsReadyDelete   bool    `json:"isdone" structs:"isdone"`
+	IsReadyDelete   bool    `json:"isreadydelete" structs:"isreadydelete"`
 }
 
 func (order *Order) Done() {

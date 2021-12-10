@@ -3,7 +3,6 @@ package controller
 import (
 	"bufio"
 	"fmt"
-	"html/template"
 	"io"
 	"log"
 	"net/http"
@@ -39,8 +38,7 @@ func getAccounts(authPath string) gin.Accounts {
 		}
 		_accPairDict := strings.Split(string(_accPair), " ")
 		if len(_accPairDict) != 2 {
-			err = fmt.Errorf("format error meets when loading auths")
-			return nil
+			log.Panic("format error meets when loading auths")
 		}
 		_accounts[_accPairDict[0]] = _accPairDict[1]
 	}
@@ -82,7 +80,32 @@ func userHandler(c *gin.Context) {
 		}
 	}()
 
-	_t := template.Must(template.ParseFiles(HTMLPath + "User.html"))
+	_userInfo, ok := c.Get("userInfo")
+
+	if !ok {
+		err = fmt.Errorf("can't extract userInfo from context")
+	}
+
+	_user, ok := _userInfo.(models.User)
+
+	if !ok {
+		err = fmt.Errorf("can't convert userInfo to model.User")
+		return
+	}
+
+	c.HTML(http.StatusOK, "User.html", gin.H{
+		"userid": _user.UserID,
+	})
+
+}
+
+func userOrderPresentor(c *gin.Context) {
+	var err error
+	defer func() {
+		if err != nil {
+			log.Println(err.Error())
+		}
+	}()
 
 	_userInfo, ok := c.Get("userInfo")
 	if !ok {
@@ -112,19 +135,7 @@ func userHandler(c *gin.Context) {
 	})
 
 	_orderInfo := [...]interface{}{_userInfo, _requestOrders, _acceptOrders, _doneOrders}
-
-	_t.Execute(c.Writer, _orderInfo)
-
-}
-
-func userPostRedirect(c *gin.Context) {
-	_userid, ok := c.Get("userid")
-	if !ok {
-		log.Println(fmt.Errorf("can't extract userid from gin context"))
-		return
-	}
-
-	c.Redirect(http.StatusMovedPermanently, _userid.(string))
+	c.IndentedJSON(http.StatusOK, _orderInfo)
 }
 
 func userActionsHandler(c *gin.Context) {
@@ -137,8 +148,7 @@ func userActionsHandler(c *gin.Context) {
 
 	log.Println("User Action Handler!")
 
-	_userID := restoreCookies(c, []string{AUTHKEY})[AUTHKEY]
-
+	// TODO: switch?
 	if _orderid := c.PostForm("cancelorderid"); _orderid != "" {
 		log.Println("Action Name: Cancel")
 
@@ -167,12 +177,7 @@ func userActionsHandler(c *gin.Context) {
 			return
 		}
 
-		_olderOrder, ok := _oldOrderInfo.(models.Order)
-		if !ok {
-			err = fmt.Errorf("can't convert userInfo to model.User")
-			return
-		}
-
+		_olderOrder := _oldOrderInfo.(models.Order)
 		// TODO: recover from a middle way operation
 		_, err = service.UserService.Update(_olderOrder.AcceptorId, _olderOrder.Price)
 		if err != nil {
@@ -208,8 +213,4 @@ func userActionsHandler(c *gin.Context) {
 			}
 		}
 	}
-
-	c.Set("userid", _userID)
-
-	c.Next()
 }
