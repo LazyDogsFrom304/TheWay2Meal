@@ -3,7 +3,6 @@ package controller
 import (
 	"bufio"
 	"fmt"
-	"html/template"
 	"io"
 	"log"
 	"net/http"
@@ -74,14 +73,18 @@ func userPremissionInterceotor(c *gin.Context) {
 }
 
 func userHandler(c *gin.Context) {
+
+	c.HTML(http.StatusOK, "User.html", gin.H{})
+
+}
+
+func userOrderPresentor(c *gin.Context) {
 	var err error
 	defer func() {
 		if err != nil {
 			log.Println(err.Error())
 		}
 	}()
-
-	_t := template.Must(template.ParseFiles(HTMLPath + "User.html"))
 
 	_userInfo, ok := c.Get("userInfo")
 	if !ok {
@@ -111,20 +114,7 @@ func userHandler(c *gin.Context) {
 	})
 
 	_orderInfo := [...]interface{}{_userInfo, _requestOrders, _acceptOrders, _doneOrders}
-
-	_t.Execute(c.Writer, _orderInfo)
-
-}
-
-func userPostRedirect(c *gin.Context) {
-	_userid, ok := c.Get("userid")
-	if !ok {
-		log.Println(fmt.Errorf("can't extract userid from gin context"))
-		return
-	}
-
-	c.Redirect(http.StatusMovedPermanently, _userid.(string))
-
+	c.IndentedJSON(http.StatusOK, _orderInfo)
 }
 
 func userActionsHandler(c *gin.Context) {
@@ -136,8 +126,6 @@ func userActionsHandler(c *gin.Context) {
 	}()
 
 	log.Println("User Action Handler!")
-
-	_userID := restoreCookies(c, []string{AUTHKEY})[AUTHKEY]
 
 	// TODO: switch?
 	if _orderid := c.PostForm("cancelorderid"); _orderid != "" {
@@ -204,8 +192,6 @@ func userActionsHandler(c *gin.Context) {
 			}
 		}
 	}
-
-	c.Set("userid", _userID)
 
 	c.Next()
 }

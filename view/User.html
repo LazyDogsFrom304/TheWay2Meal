@@ -14,12 +14,48 @@ Balance:{{.Balance}}</br>
 
 <h2>Order Requested</h2>
 <script>
+  // Json example:
+//   [
+//     {
+//         "userid": 2,
+//         "name": "zcm",
+//         "balance": 0
+//     },
+//     [],
+//     [
+//         {
+//             "orderid": 2,
+//             "ordertime": "2021-12-10 16:42:01",
+//             "requestername": "gs",
+//             "acceptorname": "zcm",
+//             "mealname": "鸡腿饭",
+//             "price": 11.3,
+//             "requesterId": 0,
+//             "acceptorId": 2,
+//             "mealId": 1,
+//             "isdone": false
+//         },
+//         {
+//             "orderid": 1,
+//             "ordertime": "2021-12-10 16:42:01",
+//             "requestername": "jzh",
+//             "acceptorname": "zcm",
+//             "mealname": "鸡腿饭",
+//             "price": 11.3,
+//             "requesterId": 1,
+//             "acceptorId": 2,
+//             "mealId": 1,
+//             "isdone": false
+//         }
+//     ],
+//     []
+// ]
   function Addrow(id)
   {
     //
   }
 
-  function AsyncConfirm() 
+  function constructRequestTable() 
   {　
       var xmlHttp = new XMLHttpRequest();
       xmlHttp.onreadystatechange = function(){
@@ -28,10 +64,11 @@ Balance:{{.Balance}}</br>
           console.log(respText)
           if (respText == "true"){
             var requestTable=document.getElementById("TableRequest")
+
             document.getElementById("donebottom"+id).disabled=true;
             document.getElementById("confirmbottom"+id).disabled=false;
           }else{
-            setTimeout("AsyncConfirm("+id+")", 1000)
+            setTimeout("constructRequestTable()", 1000)
           }
         }
       }
