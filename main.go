@@ -10,8 +10,10 @@ func main() {
 	log.SetFlags(log.Lshortfile | log.Ldate | log.Lmicroseconds)
 
 	//test loading data
-	db := service.GetDefaultDB()
-	service.DB_loadTestingData(db, true, true, true)
+	if service.DataBasePrepare() != nil {
+		log.Fatalf("can't loading dataset, STOP")
+		return
+	}
 
 	r := controller.MapRoutes()
 	// Listen and Server in 0.0.0.0:8080

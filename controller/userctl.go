@@ -302,3 +302,12 @@ func onUserPasswordChanged(c *gin.Context) {
 		c.Redirect(http.StatusMovedPermanently, "/user/"+c.Param("userid")+"/pwchange")
 	}
 }
+
+func resetOrders(c *gin.Context) {
+	c.HTML(http.StatusOK, "Reset.html", gin.H{})
+}
+
+func onOrderReseted(c *gin.Context) {
+	service.OrdersReset()
+	c.Redirect(http.StatusMovedPermanently, "/menu")
+}

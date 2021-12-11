@@ -2,6 +2,7 @@ package service
 
 import (
 	"math/rand"
+	"os"
 	"sync"
 	"testing"
 	"theway2meal/models"
@@ -9,8 +10,9 @@ import (
 
 func Test_PendingOrderGet(t *testing.T) {
 	clear()
+	defer os.Remove(dbPath)
 	db := GetDefaultDB()
-	DB_loadTestingData(db, true, true, true)
+	DBResetDataTemplate(db, true, true, true)
 	order2, e := PendingOrderService.GetPendingOrder(2)
 	if e != nil || order2.OrderTime != models.Orders[2].OrderTime {
 		t.Error("PendingOrderService Get test failed")
@@ -19,8 +21,9 @@ func Test_PendingOrderGet(t *testing.T) {
 
 func Test_DoneOrderGet(t *testing.T) {
 	clear()
+	defer os.Remove(dbPath)
 	db := GetDefaultDB()
-	DB_loadTestingData(db, true, true, true)
+	DBResetDataTemplate(db, true, true, true)
 	order0, e := DoneOrderService.GetDoneOrder(0)
 	if e != nil || order0.OrderTime != models.Orders[0].OrderTime {
 		t.Error("DoneOrderService Get test failed")
@@ -29,6 +32,7 @@ func Test_DoneOrderGet(t *testing.T) {
 
 func Test_OrderPending(t *testing.T) {
 	clear()
+	defer os.Remove(dbPath)
 	var wg sync.WaitGroup
 	wg.Add(test_case)
 
@@ -55,6 +59,7 @@ func Test_OrderPending(t *testing.T) {
 
 func Test_OrderDone(t *testing.T) {
 	clear()
+	defer os.Remove(dbPath)
 
 	generateOrder := func(dealNums int, reqc chan models.Order) {
 		for i := 0; i < dealNums; i++ {

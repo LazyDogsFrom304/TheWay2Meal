@@ -2,6 +2,7 @@ package service
 
 import (
 	"math/rand"
+	"os"
 	"sync"
 	"testing"
 	"theway2meal/models"
@@ -9,18 +10,21 @@ import (
 
 func Test_MealGet(t *testing.T) {
 	clear()
+	defer os.Remove(dbPath)
 	db := GetDefaultDB()
-	DB_loadTestingData(db, true, true, true)
+	DBResetDataTemplate(db, true, true, true)
 	meal0, e := MealService.GetMeal(0)
 	if e != nil || meal0.Name != models.Meals[0].Name {
 		t.Errorf("MealService Get test failed, %v", e)
 	}
+
 }
 
 func Test_MealUpdate(t *testing.T) {
 	clear()
+	defer os.Remove(dbPath)
 	db := GetDefaultDB()
-	DB_loadTestingData(db, true, true, true)
+	DBResetDataTemplate(db, true, true, true)
 	var wg sync.WaitGroup
 	wg.Add(test_case)
 

@@ -51,9 +51,12 @@ func (srv *service) Update(id int, changes ...interface{}) (old interface{}, err
 
 func (srv *service) Select(maxLen int, filter func(interface{}) bool) []interface{} {
 	srv.rwmutex.RLock()
-	defer srv.rwmutex.RUnlock()
 
 	_db := GetDefaultDB()
+	defer func() {
+		srv.rwmutex.RUnlock()
+		_db.PersistDataBase(dbPath)
+	}()
 	_targetTable := _db[srv.tableName]
 	if maxLen == 0 {
 		maxLen = len(_targetTable)
