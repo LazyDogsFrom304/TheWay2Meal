@@ -27,6 +27,14 @@ func (user *User) String() string {
 		user.Balance)
 }
 
+func (user *User) DecodeFromMap(m map[string]interface{}) interface{} {
+	user.UserID = int(m["userid"].(float64))
+	user.Name = m["name"].(string)
+	user.Balance = m["balance"].(float64)
+
+	return user.Detach()
+}
+
 const (
 	UserStatusOK = iota
 )

@@ -13,21 +13,21 @@ var Meals = []Meal{
 		Name:        "烧鹅饭",
 		Price:       10.3,
 		Floor:       1,
-		LastOrdered: time.Now(),
+		LastOrdered: time.Now().Format(TimeFormat),
 	},
 	{
 		Id:          1,
 		Name:        "鸡腿饭",
 		Price:       11.3,
 		Floor:       2,
-		LastOrdered: time.Now(),
+		LastOrdered: time.Now().Format(TimeFormat),
 	},
 	{
 		Id:          2,
 		Name:        "鱼香肉丝",
 		Price:       12.3,
 		Floor:       2,
-		LastOrdered: time.Now(),
+		LastOrdered: time.Now().Format(TimeFormat),
 	},
 }
 
@@ -49,44 +49,7 @@ var Users = []User{
 	},
 }
 
-var Orders = []Order{
-	{
-		OrderID:         0,
-		OrderTime:       time.Now().Format(TimeFormat),
-		RequesterName:   Users[0].Name,
-		AcceptorName:    Users[1].Name,
-		OrderedMealName: Meals[0].Name,
-		RequesterId:     0,
-		AcceptorId:      1,
-		OrderedMealId:   0,
-		Price:           Meals[0].Price,
-		IsReadyDelete:   false,
-	},
-	{
-		OrderID:         1,
-		OrderTime:       time.Now().Format(TimeFormat),
-		RequesterName:   Users[1].Name,
-		AcceptorName:    Users[2].Name,
-		OrderedMealName: Meals[1].Name,
-		RequesterId:     1,
-		AcceptorId:      2,
-		OrderedMealId:   1,
-		Price:           Meals[1].Price,
-		IsReadyDelete:   false,
-	},
-	{
-		OrderID:         2,
-		OrderTime:       time.Now().Format(TimeFormat),
-		RequesterName:   Users[0].Name,
-		AcceptorName:    Users[2].Name,
-		OrderedMealName: Meals[1].Name,
-		RequesterId:     0,
-		AcceptorId:      2,
-		OrderedMealId:   1,
-		Price:           Meals[1].Price,
-		IsReadyDelete:   false,
-	},
-}
+var Orders = []Order{}
 
 var console_color = map[string][2]int{
 	"order": {31, 40}, //red

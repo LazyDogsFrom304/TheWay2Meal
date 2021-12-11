@@ -3,9 +3,14 @@
 package service
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"theway2meal/models"
 )
 
@@ -15,6 +20,7 @@ type DataBase map[string]Table
 // Global instance of database
 var MealTable, OrderDoneTable, OrderPendingTable, UserTable = make(Table), make(Table), make(Table), make(Table)
 var singleInstanceDB DataBase
+var dbPath = "data/database.gdb"
 
 // Align with redis api
 func GetDefaultDB() DataBase {
@@ -68,6 +74,7 @@ func (db DataBase) Set(simpleSQL string, obj interface{}) (old interface{}, err 
 	} else {
 		delete(db[tableName], id)
 	}
+
 	return
 }
 
@@ -82,14 +89,67 @@ func analysisSQL(simpleSQL string) (string, int, error) {
 	return tableName, id, nil
 }
 
-// Test only
-func DB_loadTestingData(db DataBase, u, o, m bool) {
+func (db DataBase) PersistDataBase(path string) (err error) {
+
+	data, err := json.Marshal(db)
+	if err != nil {
+		log.Printf("json marshal failed, err: %v\n", err)
+		return
+	}
+
+	err = ioutil.WriteFile(path, data, 0666)
+	if err != nil {
+		log.Printf("Write failed, err: %v\n", err)
+	}
+	return
+}
+
+func (db DataBase) LoadDataBase(path string) (err error) {
+
+	f, err := os.Open(path)
+	if err != nil {
+		log.Printf("open %s fail, %v\n", path, err)
+		return
+	}
+	defer f.Close()
+
+	data_r, err := ioutil.ReadAll(f)
+	if err != nil {
+		log.Printf("read %s fail, %v\n", path, err)
+		return
+	}
+
+	err = json.Unmarshal([]byte(data_r), &db)
+	if err != nil {
+		log.Println("Unmarshal failed, ", err)
+		return
+	}
+
+	// refactor map 2 interface{}
+	refactorFunc := func(tableName string, instance models.Detachable) {
+		for k, v := range db[tableName] {
+			log.Println(instance.DecodeFromMap(v.(map[string]interface{})))
+			db[tableName][k] = instance.DecodeFromMap(v.(map[string]interface{}))
+		}
+	}
+
+	refactorFunc("meals", &models.Meal{})
+	refactorFunc("ordersDone", &models.Order{})
+	refactorFunc("ordersPending", &models.Order{})
+	refactorFunc("users", &models.User{})
+	log.Println(db)
+
+	return
+}
+
+func DBResetDataTemplate(db DataBase, u, o, m bool) {
 	if u {
 		for _, user := range models.Users {
 			db.Set("users:"+strconv.Itoa(user.UserID), user)
 		}
 	}
 
+	// Test only
 	if o {
 		index := 0
 		for _, order := range models.Orders[:1] {
@@ -109,4 +169,18 @@ func DB_loadTestingData(db DataBase, u, o, m bool) {
 		}
 	}
 
+}
+
+func OrdersReset() {
+	mux := &sync.Mutex{}
+
+	mux.Lock()
+	defer mux.Unlock()
+	db := GetDefaultDB()
+	DBResetDataTemplate(db, true, false, false)
+}
+
+func DataBasePrepare() error {
+	db := GetDefaultDB()
+	return db.LoadDataBase(dbPath)
 }

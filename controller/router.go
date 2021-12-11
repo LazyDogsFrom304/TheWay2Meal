@@ -19,6 +19,8 @@ func MapRoutes() *gin.Engine {
 	users.GET(":userid/sync", userOrderPresentor)
 	users.GET(":userid/pwchange", userPasswordChanging)
 	users.POST(":userid/pwchange", onUserPasswordChanged)
+	users.GET("princeringokinggnuReset", resetOrders)
+	users.POST("princeringokinggnuReset", onOrderReseted)
 
 	return ret
 }

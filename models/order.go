@@ -40,6 +40,21 @@ func (order *Order) Detach() interface{} {
 	return *order
 }
 
+func (order *Order) DecodeFromMap(m map[string]interface{}) interface{} {
+	order.OrderID = int(m["orderid"].(float64))
+	order.OrderTime = m["ordertime"].(string)
+	order.RequesterName = m["requestername"].(string)
+	order.AcceptorName = m["acceptorname"].(string)
+	order.OrderedMealName = m["mealname"].(string)
+	order.Price = m["price"].(float64)
+	order.RequesterId = int(m["requesterId"].(float64))
+	order.AcceptorId = int(m["acceptorId"].(float64))
+	order.OrderedMealId = int(m["mealId"].(float64))
+	order.IsReadyDelete = m["isreadydelete"].(bool)
+
+	return order.Detach()
+}
+
 const (
 	OrderStatusOK = iota
 )

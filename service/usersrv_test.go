@@ -3,6 +3,7 @@ package service
 import (
 	"math"
 	"math/rand"
+	"os"
 	"sync"
 	"testing"
 	"theway2meal/models"
@@ -10,8 +11,9 @@ import (
 
 func Test_UserGet(t *testing.T) {
 	clear()
+	defer os.Remove(dbPath)
 	db := GetDefaultDB()
-	DB_loadTestingData(db, true, true, true)
+	DBResetDataTemplate(db, true, true, true)
 	user2, e := UserService.GetUser(2)
 	if e != nil || user2.Name != models.Users[2].Name {
 		t.Error("UserService Get test failed")
@@ -20,8 +22,9 @@ func Test_UserGet(t *testing.T) {
 
 func Test_UserHandle(t *testing.T) {
 	clear()
+	defer os.Remove(dbPath)
 	db := GetDefaultDB()
-	DB_loadTestingData(db, true, true, true)
+	DBResetDataTemplate(db, true, true, true)
 	var wg sync.WaitGroup
 	wg.Add(test_case)
 

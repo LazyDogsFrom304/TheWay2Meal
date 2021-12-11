@@ -6,18 +6,18 @@ import (
 )
 
 type Meal struct {
-	Id          int       `json:"id" structs:"id"`
-	Name        string    `json:"name" structs:"name"`
-	Price       float64   `json:"price" structs:"price"`
-	Floor       int       `json:"floor" structs:"floor"`
-	Popularity  int       `json:"popularity" structs:"popularity"`
-	LastOrdered time.Time `json:"lastordered" structs:"lastordered"`
+	Id          int     `json:"id" structs:"id"`
+	Name        string  `json:"name" structs:"name"`
+	Price       float64 `json:"price" structs:"price"`
+	Floor       int     `json:"floor" structs:"floor"`
+	Popularity  int     `json:"popularity" structs:"popularity"`
+	LastOrdered string  `json:"lastordered" structs:"lastordered"`
 }
 
 // Increment one by one synchronously
 func (meal *Meal) Update() {
 	meal.Popularity += 1
-	meal.LastOrdered = time.Now()
+	meal.LastOrdered = time.Now().Format(TimeFormat)
 }
 
 func (meal *Meal) Detach() interface{} {
@@ -34,7 +34,18 @@ func (meal *Meal) String() string {
 		meal.Price,
 		meal.Popularity,
 		meal.Floor,
-		meal.LastOrdered.Format("2006-01-02 15:04:05"))
+		meal.LastOrdered)
+}
+
+func (meal *Meal) DecodeFromMap(m map[string]interface{}) interface{} {
+	meal.Id = int(m["id"].(float64))
+	meal.Name = m["name"].(string)
+	meal.Price = m["price"].(float64)
+	meal.Floor = int(m["floor"].(float64))
+	meal.Popularity = int(m["popularity"].(float64))
+	meal.LastOrdered = m["lastordered"].(string)
+
+	return meal.Detach()
 }
 
 const (
