@@ -116,8 +116,8 @@
         // setTimeout("refreshPage()", 1000)
       }
 
-      xmlHttp.open("get", "/user/" + {{ .userid }} + "/sync")
-      xmlHttp.send()
+      xmlHttp.open("get", "/user/" + {{ .userid }} + "/sync");
+      xmlHttp.send();
 
     }
 
@@ -128,6 +128,7 @@
   <h1 style="text-align:center;">User</h1>
   <a href="/menu">跳转菜单</a></br>
   User:<a id="username"></a></br>
+  <a href="/user/{{.userid}}/pwchange">修改密码</a></br>
   Balance:<a id="balance"></a></br>
 
   <h2>Order Requested</h2>

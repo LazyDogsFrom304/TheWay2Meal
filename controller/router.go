@@ -17,6 +17,8 @@ func MapRoutes() *gin.Engine {
 	users.GET(":userid", userHandler)
 	users.POST(":userid", userActionsHandler)
 	users.GET(":userid/sync", userOrderPresentor)
+	users.GET(":userid/pwchange", userPasswordChanging)
+	users.POST(":userid/pwchange", onUserPasswordChanged)
 
 	return ret
 }

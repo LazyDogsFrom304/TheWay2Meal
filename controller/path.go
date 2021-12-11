@@ -9,7 +9,7 @@ const (
 
 	// resource path
 	HTMLPath = "view/"
-	AUTHPATH = "data/auth.txt"
+	AUTHPATH = "data/auth"
 
 	// Global Variable
 	AUTHKEY    = "auth_user"

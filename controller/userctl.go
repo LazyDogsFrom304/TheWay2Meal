@@ -4,9 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"theway2meal/models"
@@ -43,6 +45,23 @@ func getAccounts(authPath string) gin.Accounts {
 		_accounts[_accPairDict[0]] = _accPairDict[1]
 	}
 	return _accounts
+}
+
+func changePw(username, pw string, r io.Reader, w io.Writer) error {
+	// use scanner to read line by line
+	sc := bufio.NewScanner(r)
+	for sc.Scan() {
+		line := sc.Text()
+		_accPairDict := strings.Split(line, " ")
+		if _accPairDict[0] == username {
+			_accPairDict[1] = pw
+		}
+		line = _accPairDict[0] + " " + _accPairDict[1] + "\n"
+		if _, err := io.WriteString(w, line); err != nil {
+			return err
+		}
+	}
+	return sc.Err()
 }
 
 func userPremissionInterceotor(c *gin.Context) {
@@ -134,6 +153,18 @@ func userOrderPresentor(c *gin.Context) {
 		return _user.UserID == _order.RequesterId || _user.UserID == _order.AcceptorId
 	})
 
+	// List in order
+	sortOrders := func(orders []interface{}) {
+		sort.Slice(orders, func(i, j int) bool {
+			return orders[i].(models.Order).OrderID > orders[j].(models.Order).OrderID
+		})
+
+	}
+
+	sortOrders(_requestOrders)
+	sortOrders(_acceptOrders)
+	sortOrders(_doneOrders)
+
 	_orderInfo := [...]interface{}{_userInfo, _requestOrders, _acceptOrders, _doneOrders}
 	c.IndentedJSON(http.StatusOK, _orderInfo)
 }
@@ -212,5 +243,62 @@ func userActionsHandler(c *gin.Context) {
 				return
 			}
 		}
+	}
+}
+
+func userPasswordChanging(c *gin.Context) {
+	c.HTML(http.StatusOK, "PwChange.html", gin.H{
+		"userid": c.Param("userid"),
+	})
+}
+
+func onUserPasswordChanged(c *gin.Context) {
+	var err error
+	defer func() {
+		if err != nil && err != io.EOF {
+			log.Println(err.Error())
+		}
+	}()
+
+	_newpw := c.PostForm("newpw")
+	_confirm := c.PostForm("confirmpw")
+
+	if _newpw == _confirm {
+		_userName := c.MustGet(gin.AuthUserKey).(string)
+
+		_f, err := os.Open(AUTHPATH)
+		if err != nil {
+			return
+		}
+		defer _f.Close()
+
+		// create temp file
+		tmp, err := ioutil.TempFile("data", "replace-*")
+		if err != nil {
+			return
+		}
+		defer tmp.Close()
+
+		if err = changePw(_userName, _newpw, _f, tmp); err != nil {
+			return
+		}
+
+		if err = tmp.Close(); err != nil {
+			return
+		}
+
+		if err = _f.Close(); err != nil {
+			return
+		}
+
+		// overwrite the original file with the temp file
+		if err = os.Rename(tmp.Name(), AUTHPATH); err != nil {
+			return
+		}
+
+		c.Redirect(http.StatusMovedPermanently, "/user/"+c.Param("userid"))
+
+	} else {
+		c.Redirect(http.StatusMovedPermanently, "/user/"+c.Param("userid")+"/pwchange")
 	}
 }
