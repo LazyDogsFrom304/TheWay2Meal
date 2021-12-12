@@ -1,21 +1,35 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"theway2meal/controller"
 	"theway2meal/service"
 )
 
+var (
+	p string
+	r bool
+)
+
+func initFlags() {
+	flag.StringVar(&p, "p", "8080", "port binds the service")
+	flag.BoolVar(&r, "r", false, "reset database.")
+}
+
 func main() {
+	// Command line process
+	initFlags()
+	flag.Parse()
 	log.SetFlags(log.Lshortfile | log.Ldate | log.Lmicroseconds)
 
-	//test loading data
-	if service.DataBasePrepare() != nil {
+	// Loading data
+	if service.DataBasePrepare(r) != nil {
 		log.Fatalf("can't loading dataset, STOP")
 		return
 	}
 
+	// Setup service
 	r := controller.MapRoutes()
-	// Listen and Server in 0.0.0.0:8080
-	r.Run(":8080")
+	r.Run(":" + p)
 }

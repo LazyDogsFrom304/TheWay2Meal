@@ -23,6 +23,7 @@ func setCookies(c *gin.Context, kvs map[string]string) {
 
 func restoreCookies(c *gin.Context, keys []string) map[string]string {
 	restored := make(map[string]string)
+	log.Printf("cookie %+v restored \n", restored)
 	for _, k := range keys {
 
 		_authCookie, e := c.Cookie(k)
@@ -31,7 +32,6 @@ func restoreCookies(c *gin.Context, keys []string) map[string]string {
 			continue
 		}
 		restored[k] = _authCookie
-		log.Printf("cookie key %s restored %s\n", k, _authCookie)
 	}
 	return restored
 }
