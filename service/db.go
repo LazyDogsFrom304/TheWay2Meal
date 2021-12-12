@@ -128,7 +128,6 @@ func (db DataBase) LoadDataBase(path string) (err error) {
 	// refactor map 2 interface{}
 	refactorFunc := func(tableName string, instance models.Detachable) {
 		for k, v := range db[tableName] {
-			log.Println(instance.DecodeFromMap(v.(map[string]interface{})))
 			db[tableName][k] = instance.DecodeFromMap(v.(map[string]interface{}))
 		}
 	}
@@ -137,7 +136,6 @@ func (db DataBase) LoadDataBase(path string) (err error) {
 	refactorFunc("ordersDone", &models.Order{})
 	refactorFunc("ordersPending", &models.Order{})
 	refactorFunc("users", &models.User{})
-	log.Println(db)
 
 	return
 }
@@ -180,7 +178,13 @@ func OrdersReset() {
 	DBResetDataTemplate(db, true, false, false)
 }
 
-func DataBasePrepare() error {
+func DataBasePrepare(r bool) (err error) {
 	db := GetDefaultDB()
-	return db.LoadDataBase(dbPath)
+	if r {
+		PendingOrderService.indexNext = 0
+		DBResetDataTemplate(singleInstanceDB, true, false, true)
+	} else {
+		err = db.LoadDataBase(dbPath)
+	}
+	return
 }

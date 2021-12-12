@@ -110,7 +110,7 @@ func orderApplyHandler(c *gin.Context) {
 		IsReadyDelete:   false,
 	}
 
-	log.Println("Apply Order INFO: ", _orderPending)
+	log.Println("Apply Order INFO: ", _orderPending.String())
 	_, err := service.PendingOrderService.Update(_orderUid, _orderPending)
 	if err != nil {
 		log.Println(err)

@@ -13,24 +13,14 @@ User:<a href="/user/{{.UserID}}">{{.Name}}</a></br>
 <h2>First Floor</h2>
 
   {{range $meal := index . 1}}
-    <!-- href 属性用于指定超链接目标的 URL-->
-    <a href="/menu/{{.Id}}">{{.Name}}</a></br>
+    <a href="/menu/{{.Id}}">{{.Name}} {{.Price}}¥ 点击量：{{.Popularity}}</a></br>
   {{end}}
 
 <h2>Second Floor</h2>
 
   {{range $meal := index . 2}}
-    <!-- href 属性用于指定超链接目标的 URL-->
-    <a href="/menu/{{.Id}}">{{.Name}}</a></br>
+    <a href="/menu/{{.Id}}">{{.Name}} {{.Price}}¥ 点击量：{{.Popularity}}</a></br>
   {{end}}
-
-<!-- <form style="text-align:center;">
-    User: <input type="text" name="username"><br>
-    Password: <input type="password" name="password">
-</form>
-<form style="text-align:center;">
-<input type="submit" value="Submit">
-</form> -->
 
 </body>
 </html>
