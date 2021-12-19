@@ -5,7 +5,7 @@ import (
 )
 
 func MapRoutes() *gin.Engine {
-	// gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.ReleaseMode)
 	ret := gin.Default()
 	ret.LoadHTMLGlob(HTMLPath + "*.html")
 
