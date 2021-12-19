@@ -9,3 +9,4 @@ echo "./w2m" > release/theway2meal/run.sh
 
 cd release/
 tar czvf m2w.tar theway2meal/*
+
