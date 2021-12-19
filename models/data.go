@@ -179,7 +179,7 @@ var Meals = []Meal{
 	{
 		Id:          24,
 		Name:        "干椒辣子鸡饭",
-		Price:       2.3,
+		Price:       12.3,
 		Floor:       1,
 		LastOrdered: time.Now().Format(TimeFormat),
 	},
@@ -272,6 +272,34 @@ var Meals = []Meal{
 		Name:        "可口可乐",
 		Price:       2.8,
 		Floor:       2,
+		LastOrdered: time.Now().Format(TimeFormat),
+	},
+	{
+		Id:          38,
+		Name:        "糖醋里脊饭",
+		Price:       9.3,
+		Floor:       1,
+		LastOrdered: time.Now().Format(TimeFormat),
+	},
+	{
+		Id:          39,
+		Name:        "酱爆肉饭",
+		Price:       9.3,
+		Floor:       1,
+		LastOrdered: time.Now().Format(TimeFormat),
+	},
+	{
+		Id:          40,
+		Name:        "京酱肉丝饭",
+		Price:       9.3,
+		Floor:       1,
+		LastOrdered: time.Now().Format(TimeFormat),
+	},
+	{
+		Id:          41,
+		Name:        "茄子肉沫饭",
+		Price:       8.3,
+		Floor:       1,
 		LastOrdered: time.Now().Format(TimeFormat),
 	},
 }

@@ -148,7 +148,7 @@ func userOrderPresentor(c *gin.Context) {
 		return _user.UserID == _order.AcceptorId
 	})
 
-	_doneOrders := service.DoneOrderService.Select(10, func(i interface{}) bool {
+	_doneOrders := service.DoneOrderService.Select(0, func(i interface{}) bool {
 		_order := i.(models.Order)
 		return _user.UserID == _order.RequesterId || _user.UserID == _order.AcceptorId
 	})
@@ -224,6 +224,12 @@ func userActionsHandler(c *gin.Context) {
 		if err != nil {
 			return
 		}
+
+		_, err = service.MealService.Update(_olderOrder.OrderedMealId)
+		if err != nil {
+			return
+		}
+
 	} else if _orderid := c.PostForm("confirmcancel"); _orderid != "" {
 		log.Println("Action Name: Confirm Canceling")
 

@@ -136,6 +136,7 @@ func (db DataBase) LoadDataBase(path string) (err error) {
 	refactorFunc("ordersDone", &models.Order{})
 	refactorFunc("ordersPending", &models.Order{})
 	refactorFunc("users", &models.User{})
+	PendingOrderService.indexNext = len(db["ordersDone"]) + len(db["ordersPending"])
 
 	return
 }
